@@ -1,0 +1,14 @@
+FROM golang:1.26-bookworm AS builder
+WORKDIR /src
+COPY go.mod go.sum* ./
+RUN go mod download
+COPY . ./
+RUN CGO_ENABLED=0 GOOS=linux go build -o /out/cossacksd ./cmd/cossacksd
+
+FROM debian:bookworm-slim
+WORKDIR /app
+COPY --from=builder /out/cossacksd /app/cossacksd
+COPY templates /app/templates
+COPY config /app/config
+EXPOSE 34001
+ENTRYPOINT ["/app/cossacksd", "-config", "/app/config/simple-cossacks-server.yaml"]

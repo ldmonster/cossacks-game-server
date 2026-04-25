@@ -1,0 +1,119 @@
+#resize(LW_cfile&<#WinH#>&height.dat|LW_show&<\52ESIZE>
+#exec(GW\7Copen\26resize\26height=<#WinH#>\29
+<\52ESIZE>)
+
+
+#ebox[%EBX](x:+0,y:+0,w:100%,h:100%)
+#font(YF,YF,YF)
+#txt(%EBX[x:38,y:130,w:100,h:20],{},"#7")
+
+#sbox[%LBX](x:0,y:0,w:100%,h:100%)
+#font(BYF,BYF,BYF)
+#txt(%LBX[x:6,y:3,w:100%,h:40],{},GoldenRoom)
+#font(YF,YF,YF)
+#apan(%LBX[x:667,y:4,w:70,h:28],{GW|go&startup},12)
+#ctxt(%LBX[x:667,y:9,w:70,h:28],{},"< games")
+
+#font(YF,YF,YF)
+#txt(%LBX[x:6,y:9,w:100%,h:40],{},"time: 10 min [t]")
+#pan(%LBX[x:158,y:10,w:1,h:15],2)
+#txt(%LBX[x:168,y:9,w:100,h:40],{},"level: normal")
+
+
+
+#font(SYF,SYF,SYF)
+#pan(%LBX[x:,y:,h:20,w:44],0)
+#ctxt(%LBX[x:,y:,h:20,w:44],{},"player")
+#pan(%LBX[x:,y:,h:20,w:],0)
+#ctxt(%LBX[x:,y:,h:20,w:],{},"nation")
+#pan(%LBX[x:,y:,h:20,w:],0)
+#ctxt(%LBX[x:,y:,h:20,w:],{},"score")
+#pan(%LBX[x:,y:,h:20,w:],0)
+#ctxt(%LBX[x:,y:,h:20,w:],{},"popul")
+
+#font(YF,YF,YF)
+#pan(%LBX[x:,y:,w:,h:],5)
+
+#txt(%LBX[x:3,y:3,w:,h:],{},PNick)
+#font(YF,YF,YF)
+#pan(%LBX[x:,y:,w:22,h:],0)
+#pix(%LBX[x:2,y:2,w:18,h:18],{},Internet/pix/squares,,,,)
+#pan(%LBX[x:,y:,w:22,h:],0)
+#ctxt(%LBX[x:2,y:3,w:18,h:],{},)
+#font(SYF,SYF,SYF)
+#pan(%LBX[x:,y:,w:,h:],5)
+#txt(%LBX[x:6,y:3,w:,h:],{},"")
+#pan(%LBX[x:,y:,w:,h:],5)
+#ctxt(%LBX[x:,y:3,w:,h:],{},"")
+#pan(%LBX[x:,y:,w:,h:],5)
+#ctxt(%LBX[x:,y:3,w:,h:],{},"")
+
+
+#font(SWF,SWF,SWF)
+#txt(%LBX[x:6,y:1,w:100%,h:40],{},"+")
+#font(SYF,SYF,SYF)
+#txt(%LBX[x:18,y:1,w:100%,h:40],{}," - speed of resource maining")
+#font(SWF,SWF,SWF)
+#txt(%LBX[x:177,y:2,w:100%,h:40],{},"*")
+#font(SYF,SYF,SYF)
+#txt(%LBX[x:187,y:1,w:100%,h:40],{}," - total resouce mained")
+#font(SWF,SWF,SWF)
+//#txt(%LBX[x:316,y:1,w:100%,h:40],{},"()")
+//#font(SYF,SYF,SYF)
+//#txt(%LBX[x:326,y:1,w:100%,h:40],{}," - random nation")
+//#font(SRF,SWF,SWF)
+//#rtxt(%LBX[x:422,y:3,w:318,h:20],{},"unsynchronization: VoinVerta1, VoinVetra2, VoinVetra3")
+//#font(SWF,SWF,SWF)
+//#rtxt(%LBX[x:420,y:1,w:318,h:20],{},"unsynchronization: VoinVerta1, VoinVetra2, VoinVetra3")
+,w:20,h:20],{%WATCH}{},"watch changes",1,0,0)
+-?>
+
+#font(YF,YF,YF)
+#pan(%LBX[x:4,y:,w:100%-8,h:2],2)
+#txt(%LBX[x:6,y:,w:100%,h:20],{},Map: golden.m3d)
+
+//20
+//
+//#txt(%LBX[x:20,y:,w:100%,h:20],{},"size: x1")
+//#txt(%LBX[x:170,y:,w:100%,h:20],{},"start options: army of peasents")
+//0
+//#txt(%LBX[x:20,y:,w:100%,h:20],{},"landscape: land")
+//#txt(%LBX[x:170,y:,w:100%,h:20],{},"ballon: immediate")
+//0
+//#txt(%LBX[x:20,y:,w:100%,h:20],{},"resources: millions")
+//#txt(%LBX[x:170,y:,w:100%,h:20],{},"cannons: no")
+//0
+//#txt(%LBX[x:20,y:,w:100%,h:20],{},"minerals: rich")
+//#txt(%LBX[x:170,y:,w:100%,h:20],{},"peace time: no")
+//0
+//#txt(%LBX[x:170,y:,w:100%,h:20],{},"18th centry: immediate")
+//0
+//#txt(%LBX[x:170,y:,w:100%,h:20],{},"capture: default")
+//0
+//#txt(%LBX[x:170,y:,w:100%,h:20],{},"autosave: 2 min")
+//0
+
+//#pix(%LBX[x:400,y:,w:5,h:5],{},Internet/pix/squares,1,1,1,1)
+//#txt(%LBX[x:422,y:,w:100%,h:20],{},"Bavaria")
+//0
+//#pix(%LBX[x:400,y:,w:18,h:18],{},Internet/pix/squares,0,0,0,0)
+//#txt(%LBX[x:422,y:,w:100%,h:20],{},"Denmark")
+//0
+//#pix(%LBX[x:400,y:,w:18,h:18],{},Internet/pix/squares,2,2,2,2)
+//#txt(%LBX[x:422,y:,w:100%,h:20],{},"Ukraine")
+//0
+//#pix(%LBX[x:400,y:,w:18,h:18],{},Internet/pix/squares,3,3,3,3)
+//#txt(%LBX[x:422,y:,w:100%,h:20],{},"Russia")
+//0
+//#pix(%LBX[x:400,y:,w:18,h:18],{},Internet/pix/squares,4,4,4,4)
+//#txt(%LBX[x:422,y:,w:100%,h:20],{},"Russia")
+//0
+//#pix(%LBX[x:400,y:,w:18,h:18],{},Internet/pix/squares,5,5,5,5)
+//#txt(%LBX[x:422,y:,w:100%,h:20],{},"Russia")
+//0
+//#cpix(%LBX[x:400,y:,w:18,h:18],{},Internet/pix/squares,6,6,6,6)
+//#txt(%LBX[x:422,y:,w:100%,h:20],{},"Russia")
+//0
+
+<NGDLG>
+<NGDLG>

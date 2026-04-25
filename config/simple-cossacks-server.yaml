@@ -1,0 +1,11 @@
+host: localhost
+port: 34001
+hole_port: 3708
+hole_int: 300
+templates: ./templates
+access_log: ./logs/access_log
+error_log: ./logs/error_log
+table_timeout: 5000
+gettbl_log_interval: 2
+chat_server: osiris.2gw.net
+show_started_rooms: true

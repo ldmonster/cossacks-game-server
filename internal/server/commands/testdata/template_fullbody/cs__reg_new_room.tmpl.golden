@@ -1,0 +1,4 @@
+<NGDLG>
+#exec(LW_gvar&%PROF&&%CG_HOLEPORT&&%CG_HOLEHOST&&%CG_HOLEINT&&%CG_GAMEID&42&%CG_MAXPL&8&%CG_GAMENAME&GoldenRoom&%COMMAND&CGAME\00)
+#exec(LW_file&Internet/Cash/cancel.cml\00)
+<NGDLG>

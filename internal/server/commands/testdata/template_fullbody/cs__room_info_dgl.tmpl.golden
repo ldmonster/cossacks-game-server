@@ -1,0 +1,38 @@
+<NGDLG>
+//#exec(LW_visbox&0&%LBX)
+#exec(LW_lockbox&%LBX)
+#exec(LW_enb&0&%RMLST)
+#font(WF,WF,YF)
+
+#ebox[%L](x:180,y:30,w:100%-380,h:260)
+#ebox[%E](x:180,y:24,w:100%-380,h:30)
+#pan[%MPN](%L[x:0,y:0,w:100%,h:100%],8)
+#ctxt[%TIT](%E[x:0,y:12,w:100%,h:10],{},"Game info")
+
+#rtxt(%E[x:320,y:12,w:50,h:10],{},#7)
+
+#font(WF,YF,WF)
+#txt[%L_NAME](%L[x:20,y:44,w:100,h:24],{},"Game title")
+#font(YF,WF,WF)
+#txt[%T_NAME](%L[x:100,y:44,w:100%-120,h:24],{},GoldenRoom)
+
+#font(WF,YF,WF)
+#txt[%L_HOST](%L[x:20,y:%T_NAME+6,w:100,h:24],{},"Host")
+#font(YF,WF,WF)
+#txt[%T_HOST](%L[x:100,y:%T_NAME+6,w:100%-120,h:24],{},)
+
+//#font(WF,YF,WF)
+//#txt[%L_PING](%L[x:20,y:%T_HOST+6,w:100,h:24],{},"Ping")
+//#font(YF,WF,WF)
+//#ping[%T_PING](%L[x:100,y:%T_HOST+6,w:100%-120,h:24],)
+
+#font(WF,YF,WF)
+#txt[%L_PLAYERS](%L[x:20,y:%T_HOST+6,w:100,h:24],{},"Players")
+#font(YF,BF,BF)
+#txt[%T_PLAYERS](%L[x:100,y:%T_HOST+6,w:100%-120,h:24],{},
+   PLAYERS+6,w:100,h:24],{},"Level")
+#font(YF,WF,WF)
+#txt[%T_LEVEL](%L[x:100,y:%T_LW_file&Internet/Cash/cancel.cml},"Cancel")
+#sbtn[%B_RGST](%L[x:43,y:100%+5,w:100,h:24],{GW|open&join_game.dcml&ASTATE=<%ASTATE>^VE_RID=7},"Join")
+#sbtn[%B_RGST](%L[x:230,y:100%+5,w:100,h:24],{LW_file&Internet/Cash/cancel.cml},"Cancel")
+<NGDLG>

@@ -1,0 +1,4 @@
+<NGDLG>
+#exec(LW_gvar&%CG_PORT&34001&%CG_GAMEID&42&%CG_MAXPL&8&%CG_GAMENAME&GoldenRoom&%COMMAND&JGAME&%CG_IP&192.0.2.1\00)
+#exec(LW_file&Internet/Cash/cancel.cml\00)
+<NGDLG>

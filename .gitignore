@@ -1,0 +1,8 @@
+.cursor/
+.cursorrules
+.vscode/
+
+docker.log
+.env
+.DS_Store
+stun.log

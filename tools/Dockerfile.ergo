@@ -1,0 +1,23 @@
+# Ergo IRC server: https://github.com/ergochat/ergo
+# Replaces open-listener + Docker tweaks from https://github.com/ergochat/ergo/blob/master/Dockerfile
+FROM docker.io/golang:1.26-alpine3.22 AS build
+ARG ERGO_VERSION=v2.18.0
+RUN apk add --no-cache make git
+WORKDIR /go/src/github.com/ergochat/ergo
+RUN git clone --depth 1 --branch "${ERGO_VERSION}" https://github.com/ergochat/ergo.git . \
+	&& sed -i 's/^\(\s*\)\"127.0.0.1:6667\":.*$/\1":6667":/' default.yaml \
+	&& sed -i 's/^\s*\"\[::1\]:6667\":.*$//' default.yaml
+RUN make install
+
+FROM docker.io/alpine:3.22
+LABEL org.opencontainers.image.source="https://github.com/ergochat/ergo"
+EXPOSE 6667/tcp 6697/tcp
+COPY --from=build /go/bin/ergo /ircd-bin/ergo
+COPY --from=build /go/src/github.com/ergochat/ergo/default.yaml /ircd-bin/default.yaml
+COPY --from=build /go/src/github.com/ergochat/ergo/languages /ircd-bin/languages
+WORKDIR /ircd
+COPY --from=build /go/src/github.com/ergochat/ergo/ergo.motd /ircd/ergo.motd
+COPY tools/ergo-entrypoint.sh /ircd-bin/ergo-entrypoint.sh
+RUN chmod +x /ircd-bin/ergo-entrypoint.sh
+VOLUME /ircd
+ENTRYPOINT ["/ircd-bin/ergo-entrypoint.sh"]

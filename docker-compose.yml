@@ -1,0 +1,41 @@
+services:
+  irc:
+    build:
+      context: ./
+      dockerfile: tools/Dockerfile.ergo
+    environment:
+      # Same reachability hint as cossacks; Ergo entrypoint uses it if ERGO__* are absent.
+      HOST_NAME: ${HOST_NAME:-cossacks-irc}
+      # Ergo docs: allow-environment-overrides + JSON for each key (default.yaml ships overrides enabled).
+      ERGO__NETWORK__NAME: "\"${HOST_NAME:-cossacks-irc}\""
+      ERGO__SERVER__NAME: "\"${HOST_NAME:-cossacks-irc}\""
+    ports:
+      - "6667:6667"
+  redis:
+    image: redis
+    ports:
+      - "127.0.0.1:6379:6379"
+  stun:
+    build:
+      context: ./
+      dockerfile: tools/Dockerfile.stun
+    ports:
+      - "3708:3708/udp"
+    environment:
+      - UDP_KEEP_ALIVE_INTERVAL=${UDP_KEEP_ALIVE_INTERVAL}
+  cossacks:
+    build:
+      context: ./
+      dockerfile: tools/Dockerfile.cossacks
+    environment:
+      - HOST_NAME=${HOST_NAME:-cossacks-irc}
+      - UDP_KEEP_ALIVE_INTERVAL=${UDP_KEEP_ALIVE_INTERVAL}
+    volumes:
+      - "./logs:/app/logs"
+      - "./templates:/app/templates"
+    ports:
+      - "34001:34001"
+    depends_on:
+      - irc
+      - redis
+      - stun
