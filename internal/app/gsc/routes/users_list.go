@@ -1,0 +1,47 @@
+// Copyright 2026 Cossacks Game Server Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// users_list open-route — intentionally unimplemented; renders a
+// "Not implemented" alert and returns ErrUsersListUnimplemented for
+// observability.
+
+package routes
+
+import (
+	"context"
+
+	"github.com/ldmonster/cossacks-game-server/internal/transport/gsc"
+	tconn "github.com/ldmonster/cossacks-game-server/internal/transport/tconn"
+)
+
+// UsersList renders the unimplemented-route alert.
+func (r *Routes) UsersList(
+	_ context.Context,
+	_ *tconn.Connection,
+	req *gsc.Stream,
+	_ map[string]string,
+) ([]gsc.Command, error) {
+	return r.renderAlert(req.Ver, "Error", "Not implemented"), ErrUsersListUnimplemented{}
+}
+
+// ErrUsersListUnimplemented signals that the `users_list`
+// open-route is intentionally not implemented. The user-visible
+// response is a "Not implemented" alert; Err carries the observability
+// metadata.
+type ErrUsersListUnimplemented struct{}
+
+// Error implements the error interface.
+func (ErrUsersListUnimplemented) Error() string {
+	return "handler: users_list route not implemented"
+}

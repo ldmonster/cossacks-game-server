@@ -1,8 +1,8 @@
-#ebox[%BOX](x:100,y:140,w:350,h:<? logged_in ? 80 : !type ? 100 : error ? 158 : 145 ?>)
+#ebox[%BOX](x:100,y:140,w:360,h:<? logged_in ? 80 : !type ? 100 : error ? 158 : 145 ?>)
 #pan[%MPN](%BOX[x:0,y:0,w:100%,h:100%],8)
 
 #font(WF,WF,WF)
-#ctxt[%TIT](%BOX[x:0,y:6,w:100%,h:30],{},"cossacks-server.net")
+#ctxt[%TIT](%BOX[x:0,y:6,w:100%,h:30],{},"my-server.example")
 
 <? IF logged_in ?>
   #font(WF,WF,WF)
@@ -11,10 +11,10 @@
 <? ELSE ?>
   <? IF !type ?>
   #font(WF,WF,WF)
-  #txt(%BOX[x:10,y:52,w:100%,h:24],{},"Your nick:")
+  #txt(%BOX[x:10,y:52,w:100%,h:24],{},"Your nickname:")
   #font(YF,YF,WF)
-  #pan[%P_NICK](%BOX[x:100,x1:100%-10,y:50,h:24],4)
-  #edit(%BOX[x:100,x1:100%-10,y:48,h:24],{%GV_LCN_NICK})
+  #pan[%P_NICK](%BOX[x:110,x1:100%-10,y:50,h:24],4)
+  #edit(%BOX[x:110,x1:100%-10,y:50,h:24],{%GV_LCN_NICK})
   <? ELSE ?>
   #font(YF,WF,BF)
   #txt(%BOX[x:10,y:39,w:100%,h:24],{},"Logon with")

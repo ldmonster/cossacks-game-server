@@ -1,8 +1,7 @@
-.cursor/
-.cursorrules
 .vscode/
+bin/
+logs/
 
 docker.log
 .env
 .DS_Store
-stun.log

@@ -1,109 +1,64 @@
 # Cossacks Game Server
 
-Dockerized multiplayer backend for Cossacks.
+Multiplayer backend for the GSC family of titles (Cossacks: European
+Wars / The Art of War / Back to War; American Conquest).
 
-The stack in `docker-compose.yml` runs:
-- `cossacks` (Go game server, TCP `34001`)
-- `stun` (Go UDP hole-punch helper, UDP `3708`)
-- `irc` (Ergo IRC server, TCP `6667`)
-- `redis` (state exchange, bound to `127.0.0.1:6379`)
+The server exposes a TCP listener for the GSC protocol, a UDP STUN
+responder for hole-punching, and an HTTP endpoint for metrics and
+health probes. An IRC service (Ergo) for the in-game chat is bundled
+in the Compose stack.
 
-## Repository Layout
+## Documentation map
 
-- `cmd/` - service entry points (`cossacksd`, `stund`)
-- `internal/` - server/config/protocol implementation
-- `templates/` - LW show templates (`cs/`, `ac/`, `.tmpl`)
-- `config/` - runtime config (`simple-cossacks-server.yaml`)
-- `tools/` - Dockerfiles and helper scripts (`ergo-entrypoint.sh`)
-- `docker-compose.yml` - runtime stack
+| Topic | Link |
+|-------|------|
+| Container build & Docker Compose | [CONTAINER.md](CONTAINER.md) |
+| Internal package layout          | [internal/README.md](internal/README.md) |
+| GSC application                  | [internal/app/gsc/README.md](internal/app/gsc/README.md) |
+| Templates                        | [templates/README.md](templates/README.md) |
+| Template pipeline notes          | [docs/TEMPLATES.md](docs/TEMPLATES.md) |
+| Runtime configuration            | [config/simple-cossacks-server.yaml](config/simple-cossacks-server.yaml) |
 
-## Configuration
-
-Create `.env` in repository root:
-
-```env
-HOST_NAME=YOUR_PUBLIC_HOST_OR_IP
-UDP_KEEP_ALIVE_INTERVAL=300
-```
-
-- `HOST_NAME` is used as IRC host/name and hole-punch host hint in game flows.
-- `UDP_KEEP_ALIVE_INTERVAL` controls STUN keep-alive TTL and hole interval.
-
-Go server config is YAML at `config/simple-cossacks-server.yaml` and keeps Perl-compatible keys (`host`, `port`, `hole_port`, `hole_int`, `templates`, etc.).
-
-## Run
-
-Start all services:
-
-```bash
-docker compose up -d --build
-```
-
-Stop and remove containers:
-
-```bash
-docker compose down
-```
-
-Run in foreground (for logs), stop with `Ctrl+C`:
-
-```bash
-docker compose up
-```
-
-If images/scripts changed, rebuild:
-
-```bash
-docker compose build --no-cache
-docker compose up
-```
-
-## Exposed Ports
-
-- `34001/tcp` - game server (`cossacks`)
-- `3708/udp` - STUN (`stun`)
-- `6667/tcp` - IRC (`irc`)
-
-## Service Notes
-
-### cossacks (Go)
-
-- Built from `tools/Dockerfile.cossacks`
-- Entrypoint: `/app/cossacksd -config /app/config/simple-cossacks-server.yaml`
-- Mounts:
-  - `./logs:/app/logs`
-  - `./templates:/app/templates`
-- Env overrides:
-  - `HOST_NAME` -> `chat_server`
-  - `UDP_KEEP_ALIVE_INTERVAL` -> `hole_int`
-
-### stun (Go)
-
-- Built from `tools/Dockerfile.stun`
-- Listens on UDP `:3708`
-- Writes NAT endpoint data into Redis with TTL (`keep_alive * 1.5`)
-
-### irc (Ergo)
-
-- Built from `tools/Dockerfile.ergo`
-- Listens on `6667`
-- Entrypoint script is idempotent for TLS cert generation across restarts.
-
-### redis
-
-- Default image, bound to `127.0.0.1:6379`
-- Used by `cossacks` and `stun` for endpoint exchange
-
-## Client: Custom Server (Non-Steam)
+## Connecting a non-Steam client
 
 These steps apply to the classic GSC client.
 
 1. Open `Internet\ggwdc.ini`.
-2. Replace `ggwdserver_addr gms.2gw.net` with your host/IP.
+2. Replace `ggwdserver_addr gms.2gw.net` with your host or IP.
 3. Keep `ggwdserver_port 34001`.
-4. Save file and start the game.
+4. Save and start the game.
 
-## Quick Start
+## Configuration
+
+Runtime configuration is loaded from a YAML file by
+`internal/platform/config`. Every key is documented inline in
+[config/simple-cossacks-server.yaml](config/simple-cossacks-server.yaml).
+
+Environment variables that override or supplement the config:
+
+| Variable | Effect |
+|----------|--------|
+| `HOST_NAME` | Public hostname surfaced as `chat_server` and the STUN advertisement target. |
+| `UDP_KEEP_ALIVE_INTERVAL` | Propagated to the GSC `hole_int` config and the STUN keep-alive TTL. |
+| `METRICS_ADDR` | Address for `/metrics`, `/livez`, `/readyz`. |
+| `PROBE_ADDR` | Override address for `/livez` + `/readyz` only. |
+| `LOG_FORMAT` | `user` (console) or `json`. |
+| `LOG_FILE` | Log file path with rotation. |
+
+## Local development
+
+From the repository root:
+
+```bash
+go test -race -cover ./...
+make test
+make lint
+```
+
+`make lint` invokes the project's pinned `golangci-lint` build under
+`bin/`; no global toolchain is required.
+
+## Quick start
 
 ```bash
 git clone https://github.com/ldmonster/cossacks-game-server
@@ -115,7 +70,9 @@ EOF
 docker compose up -d --build
 ```
 
-## Copyright and License
+For everything else container-related see [CONTAINER.md](CONTAINER.md).
 
-This project is licensed under the Apache License 2.0.
-See `LICENSE` for the full text.
+## Copyright and license
+
+This project is licensed under the Apache License 2.0. See
+[LICENSE](LICENSE) for the full text.

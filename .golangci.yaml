@@ -1,0 +1,184 @@
+version: "2"
+run:
+  timeout: 10m
+
+linters:
+  default: none
+  enable:
+    - copyloopvar
+    - depguard
+    - dogsled
+    - errcheck
+    - gocritic
+    - govet
+    - ineffassign
+    - makezero
+    - misspell
+    - musttag
+    - nonamedreturns
+    - prealloc
+    - revive
+    - sloglint
+    - staticcheck
+    - unconvert
+    - unparam
+    - whitespace
+    - wsl_v5
+    - unused
+    - usestdlibvars
+  settings:
+    depguard:
+      rules:
+        main:
+          files:
+            - $all
+          deny:
+            - pkg: github.com/golang/mock
+              desc: "In public archive. Use 'github.com/gojuno/minimock' instead."
+            - pkg: "github.com/samber/lo"
+              desc: "This package must not be used, because of increasing cognitive complexity."
+        # Hexagonal layering.
+        # domain/* may only depend on stdlib + other domain packages.
+        domain:
+          files:
+            - "**/internal/domain/**/*.go"
+          deny:
+            - pkg: github.com/ldmonster/cossacks-game-server/internal/app
+              desc: "domain must not depend on the application layer"
+            - pkg: github.com/ldmonster/cossacks-game-server/internal/adapter
+              desc: "domain must not depend on adapters"
+            - pkg: github.com/ldmonster/cossacks-game-server/internal/transport
+              desc: "domain must not depend on transport"
+            - pkg: github.com/ldmonster/cossacks-game-server/internal/platform
+              desc: "domain must not depend on platform infrastructure"
+            - pkg: github.com/ldmonster/cossacks-game-server/internal/server
+              desc: "domain must not depend on the legacy server layer"
+            - pkg: github.com/ldmonster/cossacks-game-server/internal/render
+              desc: "domain must not depend on rendering"
+            - pkg: github.com/ldmonster/cossacks-game-server/internal/port
+              desc: "domain must not depend on application ports"
+        # app/* may depend on domain/* and on its own internal ports;
+        # it must not reach outward into adapters. The TCP transport
+        # exposes the per-connection runtime context via
+        # internal/transport/tconn (the Connection struct), which the
+        # GSC application layer legitimately consumes.
+        # The GSC application's wire tests (internal/app/gsc/*_test.go)
+        # construct adapter/rooms.Store directly to assert wire-level
+        # output, so the rule below is restricted to non-test files.
+        app:
+          files:
+            - "**/internal/app/**/*.go"
+            - "!**/internal/app/**/*_test.go"
+            - "!**/internal/app/gsc/dispatcher.go"
+          deny:
+            - pkg: github.com/ldmonster/cossacks-game-server/internal/adapter
+              desc: "app layer must not depend on adapters (use ports)"
+            - pkg: github.com/ldmonster/cossacks-game-server/internal/transport/tcp
+              desc: "app layer must not depend on the TCP transport server"
+        # adapter/* must not depend on transport packages.
+        adapter:
+          files:
+            - "**/internal/adapter/**/*.go"
+          deny:
+            - pkg: github.com/ldmonster/cossacks-game-server/internal/transport
+              desc: "adapters must not depend on transport"
+    errcheck:
+      exclude-functions:
+        - fmt:.*[rR]ead|[wW]rite|[cC]lose
+        - io:Copy
+        - (io.Writer).Write
+        - (net/http.ResponseWriter).Write
+    nonamedreturns:
+      report-error-in-defer: false
+    sloglint:
+      no-mixed-args: true
+      # Enforce using key-value pairs only (overrides no-mixed-args, incompatible with attr-only).
+      kv-only: false
+      # Enforce using attributes only (overrides no-mixed-args, incompatible with kv-only).
+      attr-only: false
+      # Enforce not using global loggers.
+      no-global: ""
+      # Enforce using methods that accept a context.
+      context: ""
+      # Enforce using static values for log messages.
+      static-msg: false
+      # Enforce using constants instead of raw keys.
+      no-raw-keys: false
+      # Enforce a single key naming convention.
+      key-naming-case: "snake"
+      # Enforce not using specific keys.
+      forbidden-keys:
+        - level
+        - msg
+        - logger
+        - source
+        - stacktrace
+        - time
+      # Enforce putting arguments on separate lines.
+      args-on-sep-lines: false
+    staticcheck:
+      checks:
+        - all
+        - '-QF1008' # not need to fix; we understand how to call nested structs
+    revive:
+      rules:
+        - name: var-naming # waiting for package name will be fixed (incorrect naming)
+          severity: warning
+          disabled: false
+          exclude: [""]
+          arguments:
+            - ["ID"] # AllowList
+            - ["VM"] # DenyList
+            - - skip-initialism-name-checks: false
+                upper-case-const: false
+                skip-package-name-checks: true
+                skip-package-name-collision-with-go-std: false
+                extra-bad-package-names: []
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - path: (.+)\.go$
+        text: ST1005.*
+      - path: (.+)\.go$
+        text: should not use dot imports
+      - path: (.+)\.go$
+        text: don't use an underscore in package name
+      - path: (.+)\.go$
+        text: 'exported: .*'
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - _test\.go$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+    - golines
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/ldmonster/cossacks-game-server)
+        - localmodule
+    goimports:
+      local-prefixes:
+        - github.com/ldmonster/cossacks-game-server
+    gofumpt:
+      # Choose whether to use the extra rules.
+      extra-rules: true
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - ^tools$

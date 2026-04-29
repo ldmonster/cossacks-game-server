@@ -11,18 +11,6 @@ services:
       ERGO__SERVER__NAME: "\"${HOST_NAME:-cossacks-irc}\""
     ports:
       - "6667:6667"
-  redis:
-    image: redis
-    ports:
-      - "127.0.0.1:6379:6379"
-  stun:
-    build:
-      context: ./
-      dockerfile: tools/Dockerfile.stun
-    ports:
-      - "3708:3708/udp"
-    environment:
-      - UDP_KEEP_ALIVE_INTERVAL=${UDP_KEEP_ALIVE_INTERVAL}
   cossacks:
     build:
       context: ./
@@ -30,12 +18,19 @@ services:
     environment:
       - HOST_NAME=${HOST_NAME:-cossacks-irc}
       - UDP_KEEP_ALIVE_INTERVAL=${UDP_KEEP_ALIVE_INTERVAL}
+      - METRICS_ADDR=:9100
     volumes:
       - "./logs:/app/logs"
       - "./templates:/app/templates"
     ports:
       - "34001:34001"
+      - "3708:3708/udp"
+      - "9100:9100"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:9100/readyz"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
     depends_on:
       - irc
-      - redis
-      - stun

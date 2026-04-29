@@ -1,11 +1,51 @@
+# Composition root: every key here is read by internal/platform/config
+# and routed to one of the typed config slices (Server / GSC / Game).
+# Comments below describe the runtime effect of each key.
+
+# --- Server (TCP listener) ----------------------------------------------
+
+# Bind address for the TCP listener (the GSC application's only inbound
+# socket). Set to 0.0.0.0 to accept connections on every interface.
 host: localhost
+
+# TCP port the GSC server listens on.
 port: 34001
+
+# UDP port advertised to clients as the STUN endpoint they should
+# contact when probing their public (ip, port). Used by the startup
+# payload's %CG_HOLEPORT&...&% expansion.
 hole_port: 3708
+
+# Interval (milliseconds) the client should wait between successive
+# STUN probes. Surfaced to the client as %CG_HOLEINT&...&%.
 hole_int: 300
+
+# --- GSC application ---------------------------------------------------
+
+# Filesystem root the LW_show template renderer reads from on startup.
+# Must contain ac/ (American Conquest) and cs/ (Cossacks European Wars
+# / The Art of War / Back to War) sub-directories.
 templates: ./templates
+
+# Access-log file path. Each accepted GSC command produces one entry.
 access_log: ./logs/access_log
+
+# Error-log file path. Receives dispatch failures and adapter errors.
 error_log: ./logs/error_log
+
+# How long (milliseconds) the server should advertise the rooms-table
+# cache as fresh. Surfaced to clients via the gettbl response.
 table_timeout: 5000
+
+# Minimum interval (seconds) between successive log entries for the
+# same gettbl request from one connection. Throttles spammy clients
+# without affecting their wire output.
 gettbl_log_interval: 2
+
+# Hostname the in-game chat plugin should connect to. Surfaced to
+# clients via the startup payload.
 chat_server: osiris.2gw.net
+
+# When true, gettbl includes rooms whose match has already started.
+# When false, only joinable rooms appear in the rooms list.
 show_started_rooms: true
