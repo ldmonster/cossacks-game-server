@@ -1,0 +1,41 @@
+services:
+  irc:
+    build:
+      context: ./
+      dockerfile: tools/Dockerfile.ergo
+    environment:
+      # Same reachability hint as cossacks; Ergo entrypoint uses it if ERGO__* are absent.
+      HOST_NAME: ${HOST_NAME:-cossacks-irc}
+      # Ergo docs: allow-environment-overrides + JSON for each key (default.yaml ships overrides enabled).
+      ERGO__NETWORK__NAME: "\"${HOST_NAME:-cossacks-irc}\""
+      ERGO__SERVER__NAME: "\"${HOST_NAME:-cossacks-irc}\""
+    # Port 6667 is intentionally NOT published to the host here.
+    # All IRC client traffic flows through the cossacks IRC proxy (see below).
+  cossacks:
+    build:
+      context: ./
+      dockerfile: tools/Dockerfile.cossacks
+    environment:
+      - HOST_NAME=${HOST_NAME:-cossacks-irc}
+      - UDP_KEEP_ALIVE_INTERVAL=${UDP_KEEP_ALIVE_INTERVAL}
+      - METRICS_ADDR=:9100
+      # Enable the built-in IRC reverse-proxy; forward clients to the irc service.
+      - IRC_PROXY_ENABLED=true
+      - IRC_PROXY_LISTEN=:6667
+      - IRC_PROXY_ADDR=irc:6667
+    volumes:
+      - "./logs:/app/logs"
+      - "./templates:/app/templates"
+    ports:
+      - "34001:34001"
+      - "3708:3708/udp"
+      - "9100:9100"
+      - "6667:6667"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:9100/readyz"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    depends_on:
+      - irc
