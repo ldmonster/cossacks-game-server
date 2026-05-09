@@ -1,28 +1,28 @@
-#ebox[%BOX](x:100,y:140,w:360,h:<? logged_in ? 80 : !type ? 100 : error ? 158 : 145 ?>)
+#ebox[%BOX](x:100,y:140,w:360,h:{{if .LoggedIn}}80{{else if not .Type}}100{{else if .Error}}158{{else}}145{{end}})
 #pan[%MPN](%BOX[x:0,y:0,w:100%,h:100%],8)
 
 #font(WF,WF,WF)
-#ctxt[%TIT](%BOX[x:0,y:6,w:100%,h:30],{},"my-server.example")
+#ctxt[%TIT](%BOX[x:0,y:6,w:100%,h:30],{},"{{.ServerName}}")
 
-<? IF logged_in ?>
+{{if .LoggedIn}}
   #font(WF,WF,WF)
-  #txt(%BOX[x:10,y:47,w:100%,h:24],{},"<? nick ?>")
+  #txt(%BOX[x:10,y:47,w:100%,h:24],{},"{{.Nickname}}")
   #btn(%BOX[x:100%-90,y:45,w:80,h:28],{GW|open&try_enter.dcml&RESET=1},"logout")
-<? ELSE ?>
-  <? IF !type ?>
+{{else}}
+  {{if not .Type}}
   #font(WF,WF,WF)
   #txt(%BOX[x:10,y:52,w:100%,h:24],{},"Your nickname:")
   #font(YF,YF,WF)
   #pan[%P_NICK](%BOX[x:110,x1:100%-10,y:50,h:24],4)
   #edit(%BOX[x:110,x1:100%-10,y:50,h:24],{%GV_LCN_NICK})
-  <? ELSE ?>
+  {{else}}
   #font(YF,WF,BF)
   #txt(%BOX[x:10,y:39,w:100%,h:24],{},"Logon with")
   #font(WF,WF,BF)
-  #apan(%BOX[x:81-3,y:38,w:<? type == 'LCN' ? 73 : 68 ?>,h:20],{GW|url&<? type == 'LCN' ? 'http://www.newlcn.com/lang_redir.php' : 'http://wcl.com.ua/' ?>&from=enter},14)
-  #txt(%BOX[x:81,y:39,w:100%,h:24],{},"<? type == 'LCN' ? 'newlcn.com' : 'wcl.com.ua' ?>")
+  #apan(%BOX[x:81-3,y:38,w:{{if eq .Type "LCN"}}73{{else}}68{{end}},h:20],{GW|url&{{if eq .Type "LCN"}}http://www.newlcn.com/lang_redir.php{{else}}http://wcl.com.ua/{{end}}&from=enter},14)
+  #txt(%BOX[x:81,y:39,w:100%,h:24],{},"{{if eq .Type "LCN"}}newlcn.com{{else}}wcl.com.ua{{end}}")
   #font(YF,WF,BF)
-  #txt(%BOX[x:<? type == 'LCN' ? 153 : 148 ?>,y:39,w:100%,h:24],{},"account:")
+  #txt(%BOX[x:{{if eq .Type "LCN"}}153{{else}}148{{end}},y:39,w:100%,h:24],{},"account:")
   
   #font(WF,WF,WF)
   #txt(%BOX[x:10,y:62,w:100%,h:24],{},"Login")
@@ -36,29 +36,29 @@
   #pan[%P_NICK](%BOX[x:100,x1:100%-10,y:89,h:24],4)
   #edit(%BOX[x:100,x1:100%-10,y:87,h:24],{%PASSWORD})
   
-  <? IF error ?>
+  {{if .Error}}
   #font(SYF,SWF,SWF)
-  #txt(%BOX[x:10,y:116,w:100%,h:24],{},"error: <? error ?>")
-  <? END ?>
-  <? END ?>
+  #txt(%BOX[x:10,y:116,w:100%,h:24],{},"error: {{.Error}}")
+  {{end}}
+  {{end}}
   
-  <? IF !type ?>
+  {{if not .Type}}
   #font(SYF,SYF,SWF)
   //#txt(%BOX[x:100%-135,w:80,y:100%-23+2,h:24],{},"logon with:")
   //#apan(%BOX[x:100%-73,w:29,y:100%-23,h:18],{GW|open&enter.dcml&TYPE=LCN},1)
   //#txt(%BOX[x:100%-69,w:30,y:100%-23+2,h:24],{},"LCN")
   //#apan(%BOX[x:100%-40,w:29,y:100%-23,h:18],{GW|open&enter.dcml&TYPE=WCL},1)
   //#txt(%BOX[x:100%-37,w:30,y:100%-23+2,h:24],{},"WCL")
-  <? ELSE ?>
+  {{else}}
   #font(SYF,SYF,SWF)
   #apan(%BOX[x:5,w:108,y:100%-23,h:18],{GW|open&enter.dcml},1)
   #txt(%BOX[x:8,w:100,y:100%-23+2,h:24],{},"< anonymus logon")
   
   #txt(%BOX[x:100%-102,w:80,y:100%-23+2,h:24],{},"login with:")
-  #apan(%BOX[x:100%-40,w:29,y:100%-23,h:18],{GW|open&enter.dcml&TYPE=<? type == 'LCN' ? 'WCL' : 'LCN' ?>},1)
-  #txt(%BOX[x:100%-37,w:30,y:100%-23+2,h:24],{},"<? type == 'LCN' ? 'WCL' : 'LCN' ?>")
-  <? END ?>
-<? END ?>
+  #apan(%BOX[x:100%-40,w:29,y:100%-23,h:18],{GW|open&enter.dcml&TYPE={{if eq .Type "LCN"}}WCL{{else}}LCN{{end}}},1)
+  #txt(%BOX[x:100%-37,w:30,y:100%-23+2,h:24],{},"{{if eq .Type "LCN"}}WCL{{else}}LCN{{end}}")
+  {{end}}
+{{end}}
 
 //#font(WF,WF,WF)
 //#chk(%BOX[x:10,x1:100%,y:%P_NICK+10,h:10],{},"remember",1,0,0)
@@ -66,5 +66,5 @@
 #font(YF,WF,RF)
 
 #exec(LW_gvar&%HEIGHT&Internet/Cash/height.dat)
-#sbtn[%B_RGST](%BOX[x:0,y:100%+8,w:160,h:24],{GW|go&try_enter&NICK=<%GV_LCN_NICK>&TYPE=<? type ?>&PASSWORD=<%PASSWORD>&LOGGED_IN=<? logged_in ?>&HEIGHT:=&<@%HEIGHT>|LW_lockall},"Enter")
+#sbtn[%B_RGST](%BOX[x:0,y:100%+8,w:160,h:24],{GW|go&try_enter&NICK=<%GV_LCN_NICK>&TYPE={{.Type}}&PASSWORD=<%PASSWORD>&LOGGED_IN={{if .LoggedIn}}1{{end}}&HEIGHT:=&<@%HEIGHT>|LW_lockall},"Enter")
 #sbtn[%B_RGST](%BOX[x:185,y:100%+8,w:160,h:24],{LW_key&#CANCEL|LW_lockall},"Cancel")

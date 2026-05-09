@@ -34,12 +34,12 @@ func (r *Routes) LCNRegistrationDialog(
 	req *gsc.Stream,
 	_ map[string]string,
 ) ([]gsc.Command, error) {
-	return render.Show(r.render(req.Ver, "confirm_dgl.tmpl", map[string]string{
-		"header":  "LCN Registration",
-		"text":    "Open www.newlcn.com?",
-		"ok_text": "Ok",
-		"height":  "100",
-		"command": "GW|url&http://" + r.deps.Auth.Provider("LCN").Host +
+	return render.Show(r.render(req.Ver, "confirm_dgl.tmpl", &render.View{
+		Header: "LCN Registration",
+		Text:   "Open www.newlcn.com?",
+		OkText: "Ok",
+		Height: 100,
+		Command: "GW|url&http://" + r.deps.Auth.Provider("LCN").Host +
 			"/lang_redir.php&from=tournaments",
 	})), nil
 }

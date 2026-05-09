@@ -43,7 +43,7 @@ func (r *Routes) NewRoomDialog(
 		), ErrAlreadyInRoom{}
 	}
 
-	return render.Show(r.render(req.Ver, "new_room_dgl.tmpl", map[string]string{})), nil
+	return render.Show(r.render(req.Ver, "new_room_dgl.tmpl", &render.View{})), nil
 }
 
 // ErrAlreadyInRoom signals that a create/join request was rejected

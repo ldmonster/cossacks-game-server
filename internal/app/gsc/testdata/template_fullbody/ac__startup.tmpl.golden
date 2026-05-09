@@ -24,19 +24,6 @@
 0,"V",NON,NON,NON,%RL_VERS,
 9,"Ping",PING,PING:Any|<100|<200|<300|<400|<500|<600,PING,%RL_IPADR)
 
-// #DBTBL[%RMLST](%LBX[x:1,y:1,w:100%-2,h:100%-40],{RMLST_V4}{%RL_C},20000,TBL_SF,9,0,
-// 0,"RID",NON,NON,NON,%RL_ID,
-// 0,"PWD",NON,NON,NON,%RL_PWD,
-// 39,"Game Title",STR,STR,STR,%RL_TITLE,
-// 15,"Host",STR,STR,STR,%RL_HOST,
-// 15,"Type",STR,STR,STR,%RL_TYPE,
-// 14,"Level",STR,STR,STR,%RL_LEVL,
-// 8,"Players",STR,STR,STR,%RL_PLRS,
-// 0,"V",NON,NON,NON,%RL_VERS,
-// 9,"Ping",PING,PING:Any|<100|<200|<300|<400|<500|<600,PING,%RL_IPADR)
-
-//#pan[%PNA](%LBX[x:0,y:100%-38,w:100%-4,h:35],1)
-
 #font(YF,WF,BF)
 #btn[%B_C](%LBX[x:10,y:100%-30,w:85,h:28],{GW|open&new_room_dgl.dcml&ASTATE=<%ASTATE>|LW_lockall},"Create")
 #btn[%B_J](%LBX[x:134,y:100%-30,w:85,h:28],{GW|open&join_game.dcml&ASTATE=<%ASTATE>^VE_RID=<%RL_ID>|LW_lockall},"Join")

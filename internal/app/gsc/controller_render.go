@@ -25,12 +25,12 @@ import (
 // renderer is missing (e.g. struct-literal test construction), the
 // immutable package defaults are used so the call still resolves
 // without depending on any global mutable state.
-func (c *Controller) render(ver uint8, name string, vars map[string]string) string {
+func (c *Controller) render(ver uint8, name string, data any) string {
 	if c != nil && c.Renderer != nil {
-		return c.Renderer.Render(ver, name, vars)
+		return c.Renderer.Render(ver, name, data)
 	}
 
-	return render.LoadShowBodyFromRoots(render.DefaultTemplateRoots, ver, name, vars)
+	return render.LoadShowBodyFromRoots(render.DefaultTemplateRoots, ver, name, data)
 }
 
 // renderAlert is a DRY helper for the most common LW response shape
@@ -39,8 +39,8 @@ func (c *Controller) render(ver uint8, name string, vars map[string]string) stri
 //
 //nolint:unparam // remaining handler call sites all pass "Error"; non-Error headers now live in routes.
 func (c *Controller) renderAlert(ver uint8, header, text string) []gsc.Command {
-	return render.Show(c.render(ver, "alert_dgl.tmpl", map[string]string{
-		"header": header,
-		"text":   text,
+	return render.Show(c.render(ver, "alert_dgl.tmpl", &render.View{
+		Header: header,
+		Text:   text,
 	}))
 }

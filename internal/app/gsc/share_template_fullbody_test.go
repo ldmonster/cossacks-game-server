@@ -105,103 +105,146 @@ func cloneStringMap(in map[string]string) map[string]string {
 	return out
 }
 
-func shareTemplateGoldenBase(ver uint8) map[string]string {
+// shareTemplateGoldenBaseView returns a `*render.View` populated with
+// the canonical golden field set used by every share-template golden.
+func shareTemplateGoldenBaseView(ver uint8) *render.View {
 	v := strconv.Itoa(int(ver))
-	m := map[string]string{
-		"ver":                               v,
-		"id":                                "42",
-		"nick":                              "GoldenNick",
-		"P.NICK":                            "GoldenNick",
-		"error_text":                        "golden error",
-		"chat_server":                       "chat.example.invalid",
-		"server.config.chat_server":         "chat.example.invalid",
-		"server.config.table_timeout":       "10000",
-		"server.config.show_started_rooms":  "1",
-		"h.connection.data.dev":             "1",
-		"window_size":                       "800,600",
-		"logged_in":                         "1",
-		"type":                              "LCN",
-		"table_timeout":                     "10000",
-		"header":                            "Golden header",
-		"text":                              "Golden body",
-		"ok_text":                           "OK",
-		"height":                            "188",
-		"command":                           "GW|url&http://example.invalid/&from=golden",
-		"ip":                                "192.0.2.1",
-		"port":                              "34001",
-		"max_pl":                            "8",
-		"name":                              "GoldenRoom",
-		"bottom_height":                     "32",
-		"gg_cup":                            "1",
-		"gg_cup.id":                         "99",
-		"gg_cup.wo_info":                    "0",
-		"gg_cup.started":                    "0",
-		"gg_cup.players_count":              "12",
-		"gg_cup.prize_fund":                 "1000.5",
-		"room_id":                           "7",
-		"room_name":                         "GoldenRoom",
-		"room_players":                      "3/8",
-		"room_host":                         "1.2.3.4",
-		"room_ctime":                        "1700000000",
-		"room_started":                      "true",
-		"room_max_pl":                       "8",
-		"room_pl_count":                     "3",
-		"room_time":                         "10 min",
-		"backto":                            "",
-		"room_players_start":                "3",
-		"active_players":                    "p1, p2",
-		"exited_players":                    "",
-		"has_exited_players":                "0",
-		"page":                              "1",
-		"res":                               "0",
-		"room.id":                           "7",
-		"room.title":                        "GoldenRoom",
-		"room.time":                         "250",
-		"room.level":                        "2",
-		"room.map":                          "golden.m3d",
-		"room.host_id":                      "1",
-		"room.started":                      "0",
-		"room.start_players_count":          "3",
-		"room.players_count":                "3",
-		"room.max_players":                  "8",
-		"room.players.1.nick":               "hostnick",
-		"server.data.start_at":              "2099-01-01 00:00:00 UTC",
-		"player.account":                    "1",
-		"player.nick":                       "PNick",
-		"player.id":                         "10",
-		"player.connected_at":               "2020-01-02 03:04:05 UTC",
-		"connection_time":                   "9 min",
-		"player.account.type":               "LCN",
-		"player.account.profile":            "http://profile.example/golden",
-		"player.account.id":                 "555",
-		"h.server.data.lcn_place_by_id.555": "3",
-		"room":                              "1",
-		"error":                             "",
+
+	room := &render.RoomView{
+		ID:             7,
+		Title:          "GoldenRoom",
+		HostID:         1,
+		HostNick:       "hostnick",
+		HostAddrInt:    16909060,
+		Level:          2,
+		Started:        false,
+		StartPlayers:   3,
+		PlayersCount:   3,
+		MaxPlayers:     8,
+		Map:            "golden.m3d",
+		CtimeFormatted: "2023-11-14 22:13:20 UTC (10 min ago)",
+		Time:           "10 min",
+		ActivePlayers:  []string{"p1", "p2"},
+		ExitedPlayers:  nil,
+		Players: map[uint32]*render.RoomPlayerView{
+			1: {Nick: "hostnick"},
+		},
 	}
-	return m
+
+	player := &render.PlayerView{
+		ID:                   10,
+		Nick:                 "PNick",
+		BoxHeight:            180,
+		LastLabelRef:         "L_ACCOUNT",
+		ConnectedAtFormatted: "2020-01-02 03:04:05 UTC (9 min ago)",
+		Account: &render.AccountView{
+			Type:     "LCN",
+			Profile:  "http://profile.example/golden",
+			HasPlace: true,
+			Place:    3,
+		},
+		Room: &render.RoomView{
+			ID:    7,
+			Title: "GoldenRoom",
+		},
+	}
+
+	ggCup := &render.GGCupView{
+		ID:              "99",
+		WoInfo:          false,
+		Started:         false,
+		PlayersCount:    "12",
+		PlayersCountLen: 2,
+		PrizeFund:       "1000",
+		PrizeFundLen:    4,
+		BoxHeight:       280,
+	}
+
+	return &render.View{
+		Ver:          v,
+		ID:           "42",
+		Nick:         "GoldenNick",
+		Nickname:     "GoldenNick",
+		ChatServer:   "chat.example.invalid",
+		ServerName:   "my-server.example",
+		ServerTitle:  "Example Game Server",
+		StartAt:      "2099-01-01 00:00:00 UTC",
+		TableTimeout: 10000,
+		ShowStarted:  false,
+		Dev:          true,
+		WindowSize:   "800,600",
+		LoggedIn:     true,
+		Type:         "LCN",
+		Header:       "Golden header",
+		Text:         "Golden body",
+		OkText:       "OK",
+		Height:       188,
+		Command:      "GW|url&http://example.invalid/&from=golden",
+		IP:           "192.0.2.1",
+		Port:         34001,
+		MaxPl:        8,
+		Name:         "GoldenRoom",
+		BottomHeight: 32,
+		PlayerID:     "10",
+		HolePort:     34002,
+		HoleHost:     "hole.example",
+		HoleInt:      5,
+		Error:        "",
+		Room:         room,
+		Player:       player,
+		GGCup:        ggCup,
+	}
 }
 
-func varsForShareTemplateGolden(rel string, ver uint8) map[string]string {
-	base := cloneStringMap(shareTemplateGoldenBase(ver)) // ver selects h.req.ver / ROOMS_V* via base["ver"]
+func viewForShareTemplateGolden(rel string, ver uint8) *render.View {
+	view := shareTemplateGoldenBaseView(ver)
+
 	switch rel {
 	case "cs/enter.tmpl":
-		// Logged-out, no type: widest anonymous enter shell (stable height branch).
-		base["logged_in"] = ""
-		base["type"] = ""
-		base["error"] = ""
+		view.LoggedIn = false
+		view.Type = ""
+		view.Error = ""
 	case "cs/ok_enter.tmpl":
-		// Exercise window_size branch (large vs non-large) with non-large default.
-		base["window_size"] = "small"
-	case "ac/startup.tmpl", "cs/startup.tmpl":
-		// GG cup marketing branch (not started, with info).
-		base["gg_cup.started"] = "0"
-		base["gg_cup.wo_info"] = "0"
+		view.WindowSize = "small"
 	case "cs/started_room_info.tmpl", "cs/started_room_info/statcols.tmpl":
-		base["room_started"] = "true"
-		base["room.started"] = "1"
-		base["room.time"] = "250"
+		view.Room.Started = true
+		view.Room.Time = "250"
+
+		view.StartedRoom = &render.StartedRoomView{
+			ID:           7,
+			Title:        "GoldenRoom",
+			Map:          "golden.m3d",
+			Level:        2,
+			RoomTime:     "10 min",
+			TimeTickSecs: 10,
+			SmallColW:    49,
+			LargeColW:    54,
+			Page:         "1",
+			Res:          "",
+			Players: []*render.StartedPlayerView{
+				{
+					Nick:   "p1",
+					Color:  16711935,
+					Theam:  1,
+					Nation: 1,
+					Stat: &render.StartedPlayerStatView{
+						RealScores:  100,
+						Population:  20,
+						ChangeWood:  "1.0",
+						ChangeFood:  "0.5",
+						ChangeStone: "0.2",
+						ChangeGold:  "0.3",
+						ChangeIron:  "0.1",
+						ChangeCoal:  "0.0",
+						ChangePop2:  "0.0",
+						Casuality:   0,
+					},
+				},
+			},
+		}
 	}
-	return base
+
+	return view
 }
 
 func goldenFullbodyPath(rel string) string {
@@ -220,7 +263,7 @@ func testShareTemplateFullbodyGolden(t *testing.T, r *render.TemplateRenderer, r
 	if dir == "ac" {
 		ver = 8
 	}
-	vars := varsForShareTemplateGolden(rel, ver)
+	vars := viewForShareTemplateGolden(rel, ver)
 	got := strings.TrimSpace(r.Render(ver, name, vars))
 	if strings.Contains(got, "server response") && strings.Contains(got, "%BOX[x:10,y:10") {
 		t.Fatalf("%s: got renderer fallback (template file missing?)", rel)

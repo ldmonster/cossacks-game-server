@@ -1,8 +1,6 @@
 #resize(LW_cfile&<#WinH#>&height.dat|LW_show&<\52ESIZE>
 #exec(GW\7Copen\26resize\26height=<#WinH#>\29
 <\52ESIZE>)
-
-
 #ebox[%EBX](x:+0,y:+0,w:100%,h:100%)
 #font(YF,YF,YF)
 #txt(%EBX[x:38,y:130,w:100,h:20],{},"#7")
@@ -13,107 +11,140 @@
 #font(YF,YF,YF)
 #apan(%LBX[x:667,y:4,w:70,h:28],{GW|go&startup},12)
 #ctxt(%LBX[x:667,y:9,w:70,h:28],{},"< games")
-
 #font(YF,YF,YF)
-#txt(%LBX[x:6,y:9,w:100%,h:40],{},"time: 10 min [t]")
-#pan(%LBX[x:158,y:10,w:1,h:15],2)
-#txt(%LBX[x:168,y:9,w:100,h:40],{},"level: normal")
+#txt(%LBX[x:6,y:41,w:100%,h:40],{},"time: 10 min [10t]")
+#pan(%LBX[x:158,y:42,w:1,h:15],2)
+#txt(%LBX[x:168,y:41,w:100,h:40],{},"level: normal")
+
+
+
+
 
 
 
 #font(SYF,SYF,SYF)
-#pan(%LBX[x:,y:,h:20,w:44],0)
-#ctxt(%LBX[x:,y:,h:20,w:44],{},"player")
-#pan(%LBX[x:,y:,h:20,w:],0)
-#ctxt(%LBX[x:,y:,h:20,w:],{},"nation")
-#pan(%LBX[x:,y:,h:20,w:],0)
-#ctxt(%LBX[x:,y:,h:20,w:],{},"score")
-#pan(%LBX[x:,y:,h:20,w:],0)
-#ctxt(%LBX[x:,y:,h:20,w:],{},"popul")
+
+#pan(%LBX[x:6,y:62,h:20,w:181],0)
+#ctxt(%LBX[x:6,y:65,h:20,w:181],{},"player")
+
+#pan(%LBX[x:185,y:62,h:20,w:78],0)
+#ctxt(%LBX[x:185,y:65,h:20,w:78],{},"nation")
+
+#pan(%LBX[x:262,y:62,h:20,w:45],0)
+#ctxt(%LBX[x:262,y:65,h:20,w:45],{},"score")
+
+#pan(%LBX[x:306,y:62,h:20,w:42],0)
+#ctxt(%LBX[x:306,y:65,h:20,w:42],{},"popul")
+
+
 
 #font(YF,YF,YF)
-#pan(%LBX[x:,y:,w:,h:],5)
-
-#txt(%LBX[x:3,y:3,w:,h:],{},PNick)
+#pan(%LBX[x:6,y:81,w:138,h:22],5)
+#txt(%LBX[x:9,y:84,w:136,h:22],{},p1)
 #font(YF,YF,YF)
-#pan(%LBX[x:,y:,w:22,h:],0)
-#pix(%LBX[x:2,y:2,w:18,h:18],{},Internet/pix/squares,,,,)
-#pan(%LBX[x:,y:,w:22,h:],0)
-#ctxt(%LBX[x:2,y:3,w:18,h:],{},)
+
+#pan(%LBX[x:143,y:81,w:22,h:22],0)
+#pix(%LBX[x:145,y:83,w:18,h:18],{},Internet/pix/squares,16711935,16711935,16711935,16711935)
+
+#pan(%LBX[x:164,y:81,w:22,h:22],0)
+#ctxt(%LBX[x:166,y:84,w:18,h:22],{},1)
+
 #font(SYF,SYF,SYF)
-#pan(%LBX[x:,y:,w:,h:],5)
-#txt(%LBX[x:6,y:3,w:,h:],{},"")
-#pan(%LBX[x:,y:,w:,h:],5)
-#ctxt(%LBX[x:,y:3,w:,h:],{},"")
-#pan(%LBX[x:,y:,w:,h:],5)
-#ctxt(%LBX[x:,y:3,w:,h:],{},"")
+#pan(%LBX[x:185,y:81,w:78,h:22],5)
+#txt(%LBX[x:191,y:84,w:78,h:22],{},"1")
+
+#pan(%LBX[x:262,y:81,w:45,h:22],5)
+#ctxt(%LBX[x:262,y:84,w:45,h:22],{},"100")
+
+#pan(%LBX[x:306,y:81,w:42,h:22],5)
+#ctxt(%LBX[x:306,y:84,w:42,h:22],{},"20")
+
+
+<INFOTBL>
+
+
+#pan(%LBX[x:347,y:62,h:20,w:49],0)
+#ctxt(%LBX[x:347,y:65,h:20,w:49],{},"+wood")
+
+#pan(%LBX[x:395,y:62,h:20,w:49],0)
+#ctxt(%LBX[x:395,y:65,h:20,w:49],{},"+food")
+
+#pan(%LBX[x:443,y:62,h:20,w:49],0)
+#ctxt(%LBX[x:443,y:65,h:20,w:49],{},"+stone")
+
+#pan(%LBX[x:491,y:62,h:20,w:49],0)
+#ctxt(%LBX[x:491,y:65,h:20,w:49],{},"+gold")
+
+#pan(%LBX[x:539,y:62,h:20,w:49],0)
+#ctxt(%LBX[x:539,y:65,h:20,w:49],{},"+iron")
+
+#pan(%LBX[x:587,y:62,h:20,w:49],0)
+#ctxt(%LBX[x:587,y:65,h:20,w:49],{},"+coal")
+
+#pan(%LBX[x:635,y:62,h:20,w:49],0)
+#ctxt(%LBX[x:635,y:65,h:20,w:49],{},"+popul")
+
+#pan(%LBX[x:683,y:62,h:20,w:54],0)
+#ctxt(%LBX[x:683,y:65,h:20,w:54],{},"*casuality")
+
+
+
+
+
+#pan(%LBX[x:347,y:81,w:49,h:22],5)
+#ctxt(%LBX[x:347,y:84,w:49,h:22],{},"1.0")
+
+#pan(%LBX[x:395,y:81,w:49,h:22],5)
+#ctxt(%LBX[x:395,y:84,w:49,h:22],{},"0.5")
+
+#pan(%LBX[x:443,y:81,w:49,h:22],5)
+#ctxt(%LBX[x:443,y:84,w:49,h:22],{},"0.2")
+
+#pan(%LBX[x:491,y:81,w:49,h:22],5)
+#ctxt(%LBX[x:491,y:84,w:49,h:22],{},"0.3")
+
+#pan(%LBX[x:539,y:81,w:49,h:22],5)
+#ctxt(%LBX[x:539,y:84,w:49,h:22],{},"0.1")
+
+#pan(%LBX[x:587,y:81,w:49,h:22],5)
+#ctxt(%LBX[x:587,y:84,w:49,h:22],{},"0.0")
+
+#pan(%LBX[x:635,y:81,w:49,h:22],5)
+#ctxt(%LBX[x:635,y:84,w:49,h:22],{},"0.0")
+
+#pan(%LBX[x:683,y:81,w:54,h:22],5)
+#ctxt(%LBX[x:683,y:84,w:54,h:22],{},"0")
+
+
+
+
+#font(YF,YF,YF)
+#apan(%LBX[x:613,y:37,w:40,h:22],{},5)
+#ctxt(%LBX[x:613,y:40,w:40,h:22],{},"1")
+
+#apan(%LBX[x:655,y:37,w:40,h:22],{GW|go&room_info_dgl&VE_RID=7&part=statcols&res=<%GV_LCN_INFR>&page=2},2)
+#ctxt(%LBX[x:655,y:40,w:40,h:22],{},"2")
+
+#apan(%LBX[x:697,y:37,w:40,h:22],{GW|go&room_info_dgl&VE_RID=7&part=statcols&res=<%GV_LCN_INFR>&page=3},2)
+#ctxt(%LBX[x:697,y:40,w:40,h:22],{},"3")
+<INFOTBL>
 
 
 #font(SWF,SWF,SWF)
-#txt(%LBX[x:6,y:1,w:100%,h:40],{},"+")
+#txt(%LBX[x:6,y:103,w:100%,h:40],{},"+")
 #font(SYF,SYF,SYF)
-#txt(%LBX[x:18,y:1,w:100%,h:40],{}," - speed of resource maining")
+#txt(%LBX[x:18,y:103,w:100%,h:40],{}," - speed of resource maining")
 #font(SWF,SWF,SWF)
-#txt(%LBX[x:177,y:2,w:100%,h:40],{},"*")
+#txt(%LBX[x:177,y:104,w:100%,h:40],{},"*")
 #font(SYF,SYF,SYF)
-#txt(%LBX[x:187,y:1,w:100%,h:40],{}," - total resouce mained")
+#txt(%LBX[x:187,y:103,w:100%,h:40],{}," - total resouce mained")
 #font(SWF,SWF,SWF)
-//#txt(%LBX[x:316,y:1,w:100%,h:40],{},"()")
-//#font(SYF,SYF,SYF)
-//#txt(%LBX[x:326,y:1,w:100%,h:40],{}," - random nation")
-//#font(SRF,SWF,SWF)
-//#rtxt(%LBX[x:422,y:3,w:318,h:20],{},"unsynchronization: VoinVerta1, VoinVetra2, VoinVetra3")
-//#font(SWF,SWF,SWF)
-//#rtxt(%LBX[x:420,y:1,w:318,h:20],{},"unsynchronization: VoinVerta1, VoinVetra2, VoinVetra3")
-,w:20,h:20],{%WATCH}{},"watch changes",1,0,0)
--?>
+
 
 #font(YF,YF,YF)
-#pan(%LBX[x:4,y:,w:100%-8,h:2],2)
-#txt(%LBX[x:6,y:,w:100%,h:20],{},Map: golden.m3d)
+#pan(%LBX[x:4,y:128,w:100%-8,h:2],2)
 
-//20
-//
-//#txt(%LBX[x:20,y:,w:100%,h:20],{},"size: x1")
-//#txt(%LBX[x:170,y:,w:100%,h:20],{},"start options: army of peasents")
-//0
-//#txt(%LBX[x:20,y:,w:100%,h:20],{},"landscape: land")
-//#txt(%LBX[x:170,y:,w:100%,h:20],{},"ballon: immediate")
-//0
-//#txt(%LBX[x:20,y:,w:100%,h:20],{},"resources: millions")
-//#txt(%LBX[x:170,y:,w:100%,h:20],{},"cannons: no")
-//0
-//#txt(%LBX[x:20,y:,w:100%,h:20],{},"minerals: rich")
-//#txt(%LBX[x:170,y:,w:100%,h:20],{},"peace time: no")
-//0
-//#txt(%LBX[x:170,y:,w:100%,h:20],{},"18th centry: immediate")
-//0
-//#txt(%LBX[x:170,y:,w:100%,h:20],{},"capture: default")
-//0
-//#txt(%LBX[x:170,y:,w:100%,h:20],{},"autosave: 2 min")
-//0
-
-//#pix(%LBX[x:400,y:,w:5,h:5],{},Internet/pix/squares,1,1,1,1)
-//#txt(%LBX[x:422,y:,w:100%,h:20],{},"Bavaria")
-//0
-//#pix(%LBX[x:400,y:,w:18,h:18],{},Internet/pix/squares,0,0,0,0)
-//#txt(%LBX[x:422,y:,w:100%,h:20],{},"Denmark")
-//0
-//#pix(%LBX[x:400,y:,w:18,h:18],{},Internet/pix/squares,2,2,2,2)
-//#txt(%LBX[x:422,y:,w:100%,h:20],{},"Ukraine")
-//0
-//#pix(%LBX[x:400,y:,w:18,h:18],{},Internet/pix/squares,3,3,3,3)
-//#txt(%LBX[x:422,y:,w:100%,h:20],{},"Russia")
-//0
-//#pix(%LBX[x:400,y:,w:18,h:18],{},Internet/pix/squares,4,4,4,4)
-//#txt(%LBX[x:422,y:,w:100%,h:20],{},"Russia")
-//0
-//#pix(%LBX[x:400,y:,w:18,h:18],{},Internet/pix/squares,5,5,5,5)
-//#txt(%LBX[x:422,y:,w:100%,h:20],{},"Russia")
-//0
-//#cpix(%LBX[x:400,y:,w:18,h:18],{},Internet/pix/squares,6,6,6,6)
-//#txt(%LBX[x:422,y:,w:100%,h:20],{},"Russia")
-//0
+#txt(%LBX[x:6,y:136,w:100%,h:20],{},Map: golden.m3d)
 
 <NGDLG>
 <NGDLG>

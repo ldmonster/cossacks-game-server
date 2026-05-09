@@ -43,9 +43,29 @@ table_timeout: 5000
 gettbl_log_interval: 2
 
 # Hostname the in-game chat plugin should connect to. Surfaced to
-# clients via the startup payload.
-chat_server: osiris.2gw.net
+# clients via the startup payload. Defaults to HOST_NAME when empty.
+# Can also be overridden explicitly with the CHAT_SERVER env var.
+# chat_server: ""
+
+# Title shown in the game lobby and login screen (AC/CS).
+# Can be overridden with the SERVER_TITLE env var.
+server_title: "My Cossacks Server"
 
 # When true, gettbl includes rooms whose match has already started.
 # When false, only joinable rooms appear in the rooms list.
 show_started_rooms: true
+
+# --- IRC proxy (Ergo) --------------------------------------------------
+
+# Set to true to start the built-in IRC reverse-proxy.
+# Can also be enabled by setting the IRC_PROXY_ENABLED env var or
+# passing --irc-proxy-addr on the command line.
+# irc_proxy_enabled: false
+
+# Address the IRC proxy listens on for incoming client connections.
+# Defaults to :6667 when not set.
+# irc_proxy_listen: ":6667"
+
+# Upstream Ergo IRC server address. Required when the proxy is enabled.
+# Can be overridden with the IRC_PROXY_ADDR env var or --irc-proxy-addr flag.
+# irc_proxy_addr: "ergo:6667"

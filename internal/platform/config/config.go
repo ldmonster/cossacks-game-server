@@ -80,12 +80,26 @@ type GameConfig struct {
 	TableTimeout        int
 	GetTblLogInterval   int
 	ChatServer          string
+	ServerTitle         string
 	ShowStartedRooms    bool
 	ProxyKey            string
 	Templates           string
 	LCNRanking          string
 	GGCupFile           string
 	ShowStartedRoomInfo bool
+}
+
+// IRCProxyConfig holds settings for the built-in IRC reverse-proxy that
+// forwards IRC client connections to an upstream Ergo IRC server.
+type IRCProxyConfig struct {
+	// Enabled controls whether the IRC proxy listener is started.
+	Enabled bool
+	// Listen is the address the proxy binds to for incoming IRC client
+	// connections (e.g. ":6667").
+	Listen string
+	// Addr is the upstream Ergo IRC server address to proxy traffic to
+	// (e.g. "ergo:6667" or "127.0.0.1:6667").
+	Addr string
 }
 
 // Config is the typed application configuration.
@@ -95,6 +109,7 @@ type Config struct {
 	Metrics   MetricsConfig
 	GSC       GSCConfig
 	Game      GameConfig
+	IRCProxy  IRCProxyConfig
 	Providers map[string]*ProviderConfig
 }
 
@@ -280,12 +295,18 @@ func configFromRaw(raw map[string]string) *Config {
 			TableTimeout:        intOr(raw["table_timeout"], 10000),
 			GetTblLogInterval:   intOr(raw["gettbl_log_interval"], 1),
 			ChatServer:          raw["chat_server"],
+			ServerTitle:         raw["server_title"],
 			ShowStartedRooms:    intOr(raw["show_started_rooms"], 0) != 0,
 			ProxyKey:            raw["proxy_key"],
 			Templates:           strOr(raw["templates"], "./templates"),
 			LCNRanking:          raw["lcn_ranking"],
 			GGCupFile:           raw["gg_cup_file"],
 			ShowStartedRoomInfo: parseBoolish(raw["show_started_room_info"]),
+		},
+		IRCProxy: IRCProxyConfig{
+			Enabled: parseBoolish(raw["irc_proxy_enabled"]),
+			Listen:  strOr(raw["irc_proxy_listen"], ":6667"),
+			Addr:    raw["irc_proxy_addr"],
 		},
 		Providers: map[string]*ProviderConfig{},
 	}
@@ -320,11 +341,16 @@ func parseBoolish(v string) bool {
 func (c *Config) ApplyEnv() {
 	type envConfig struct {
 		HostName             string `env:"HOST_NAME"`
+		ChatServer           string `env:"CHAT_SERVER"`
+		ServerTitle          string `env:"SERVER_TITLE"`
 		UDPKeepAliveInterval string `env:"UDP_KEEP_ALIVE_INTERVAL"`
 		LogFormat            string `env:"LOG_FORMAT"`
 		LogFile              string `env:"LOG_FILE"`
 		MetricsAddr          string `env:"METRICS_ADDR"`
 		ProbeAddr            string `env:"PROBE_ADDR"`
+		IRCProxyEnabled      string `env:"IRC_PROXY_ENABLED"`
+		IRCProxyListen       string `env:"IRC_PROXY_LISTEN"`
+		IRCProxyAddr         string `env:"IRC_PROXY_ADDR"`
 	}
 
 	var e envConfig
@@ -333,8 +359,18 @@ func (c *Config) ApplyEnv() {
 	}
 
 	if e.HostName != "" {
-		c.Game.ChatServer = e.HostName
 		c.Server.HostName = e.HostName
+		if c.Game.ChatServer == "" {
+			c.Game.ChatServer = e.HostName
+		}
+	}
+
+	if e.ChatServer != "" {
+		c.Game.ChatServer = e.ChatServer
+	}
+
+	if e.ServerTitle != "" {
+		c.Game.ServerTitle = e.ServerTitle
 	}
 
 	if e.UDPKeepAliveInterval != "" {
@@ -355,6 +391,18 @@ func (c *Config) ApplyEnv() {
 
 	if e.ProbeAddr != "" {
 		c.Metrics.ProbeAddr = e.ProbeAddr
+	}
+
+	if e.IRCProxyEnabled != "" {
+		c.IRCProxy.Enabled = parseBoolish(e.IRCProxyEnabled)
+	}
+
+	if e.IRCProxyListen != "" {
+		c.IRCProxy.Listen = e.IRCProxyListen
+	}
+
+	if e.IRCProxyAddr != "" {
+		c.IRCProxy.Addr = e.IRCProxyAddr
 	}
 }
 

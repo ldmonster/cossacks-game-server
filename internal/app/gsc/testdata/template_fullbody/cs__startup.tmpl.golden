@@ -9,11 +9,6 @@
 #btn(%BOTTOM[x:5,y:4,w:80,h:28],{GW|open&join_game.dcml&ASTATE=<%ASTATE>^VE_RID=<%RL_ID>},"Join")
 #btn(%BOTTOM[x:95,y:4,w:80,h:28],{GW|open&room_info_dgl.dcml&VE_RID=<%RL_ID>},"Info")
 #btn(%BOTTOM[x:185,y:4,w:80,h:28],{GW|open&new_room_dgl.dcml&ASTATE=<%ASTATE>|LW_lockall},"New")
-//
-//#btn(%BOTTOM[x:643,y:4,w:106,h:28],{GW|open&tournaments.dcml&option=total|LW_lockall},"Tournaments")
-//
-//#btn(%BOTTOM[x:660,y:4,w:89,h:28],{GW|open&tournaments.dcml&option=total|LW_lockall},"Tournaments")
-//
 #ebox[%EBX](x:0,y:0,w:100%,h:100%)
 #font(SWF,SWF,SWF)
 #txt(%EBX[x:6,w:200,y:0-21,h:24],{},"my-server.example")
@@ -54,8 +49,8 @@
 <ROOMS>
 #DBTBL[%RMLST](%LBX[x:1,y:1,w:100%,h:100%],{ROOMS_V2}{%RL_C},"10000",TBL_SF,9,9,
 0,"RID",NON,NON,NON,%RL_ID,
-1,"",STR,NON,NON,%RS_ST,
-1,"Game Title",STR,STR,STR,%RL_TITLE,
+3,"",STR,NON,NON,%RS_ST,
+50,"Game Title",STR,STR,STR,%RL_TITLE,
 15,"Host",STR,STR,STR,%RL_HOST,
 12,"Level",STR,FIXED:Any|Hard|Normal|Easy,STR,%RL_LEVL,
 10,"Players",STR,INT:Any|>1|>2|>3|>4|>5|>6,STR,%RL_PLRS,
@@ -68,7 +63,6 @@
 <NGDLG>
 
 <RESIZE>
-
 <RESIZE>
 
 #save(rooms_table_dgl.dcml,ROOMS)

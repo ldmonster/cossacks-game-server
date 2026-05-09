@@ -46,16 +46,36 @@ func (r *Routes) RenderEnter(
 	req *gsc.Stream,
 	loginType, errText, loggedIn, nick, id string,
 ) []gsc.Command {
-	vars := map[string]string{
-		"type":          loginType,
-		"error":         errText,
-		"logged_in":     loggedIn,
-		"nick":          nick,
-		"id":            id,
-		"chat_server":   r.deps.Game.ChatServer,
-		"table_timeout": strconv.Itoa(r.deps.Game.TableTimeout),
-		"ver":           strconv.Itoa(int(req.Ver)),
+	tableTimeout := 0
+	if r.deps.Game != nil {
+		tableTimeout = r.deps.Game.TableTimeout
 	}
 
-	return render.Show(r.render(req.Ver, "enter.tmpl", vars))
+	chatServer := ""
+	serverTitle := ""
+	if r.deps.Game != nil {
+		chatServer = r.deps.Game.ChatServer
+		serverTitle = r.deps.Game.ServerTitle
+	}
+
+	serverName := ""
+	if r.deps.Server != nil {
+		serverName = r.deps.Server.HostName
+	}
+
+	view := &render.View{
+		Type:         loginType,
+		Error:        errText,
+		LoggedIn:     loggedIn == "1",
+		Nick:         nick,
+		Nickname:     nick,
+		ID:           id,
+		ChatServer:   chatServer,
+		ServerTitle:  serverTitle,
+		TableTimeout: tableTimeout,
+		Ver:          strconv.Itoa(int(req.Ver)),
+		ServerName:   serverName,
+	}
+
+	return render.Show(r.render(req.Ver, "enter.tmpl", view))
 }

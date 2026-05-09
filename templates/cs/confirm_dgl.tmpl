@@ -1,14 +1,13 @@
 <NGDLG>
-<?~ SET height = height ? height : 180 ?>
 #exec(LW_lockbox&%LBX)
 #exec(LW_enb&0&%RMLST)
-#ebox[%B](x:120,y:30,w:500,h:<? height ?>)
+#ebox[%B](x:120,y:30,w:500,h:{{.Height}})
 #pan[%MPN](%B[x:0,y:0,w:100%,h:100%],8)
 #font(WF,WF,WF)
-#ctxt[%TIT](%B[x:0,y:6,w:100%,h:30],{},"<? header ?>")
+#ctxt[%TIT](%B[x:0,y:6,w:100%,h:30],{},"{{.Header}}")
 #font(YF,YF,YF)
-#ctxt[%L_NAME](%B[x:0,y:48,w:100%,h:100],{},"<? text ?>")
+#ctxt[%L_NAME](%B[x:0,y:48,w:100%,h:100],{},"{{.Text}}")
 #font(YF,WF,RF)
-#sbtn[%B_RGST](%B[x:50,y:<? height + 8 ?>,w:160,h:24],{<? command ?>},"<? ok_text ?>")
-#sbtn[%B_RGST](%B[x:290,y:<? height + 8 ?>,w:160,h:24],{LW_file&Internet/Cash/cancel.cml},"Cancel")
+#sbtn[%B_RGST](%B[x:50,y:{{add .Height 8}},w:160,h:24],{ {{- .Command -}} },"{{.OkText}}")
+#sbtn[%B_RGST](%B[x:290,y:{{add .Height 8}},w:160,h:24],{LW_file&Internet/Cash/cancel.cml},"Cancel")
 <NGDLG>

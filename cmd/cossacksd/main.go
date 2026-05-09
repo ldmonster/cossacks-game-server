@@ -32,13 +32,14 @@ import (
 	"github.com/ldmonster/cossacks-game-server/internal/platform/health"
 	"github.com/ldmonster/cossacks-game-server/internal/platform/logging"
 	"github.com/ldmonster/cossacks-game-server/internal/platform/metrics"
+	"github.com/ldmonster/cossacks-game-server/internal/transport/ircproxy"
 	core "github.com/ldmonster/cossacks-game-server/internal/transport/tcp"
 )
 
 func main() {
 	configPath := "./config/simple-cossacks-server.yaml"
 
-	var logFormatFlag, logFileFlag, metricsAddrFlag, probeAddrFlag string
+	var logFormatFlag, logFileFlag, metricsAddrFlag, probeAddrFlag, ircProxyAddrFlag string
 
 	rootCmd := &cobra.Command{
 		Use:   "cossacksd",
@@ -128,6 +129,26 @@ func main() {
 				})
 			}
 
+			// IRC proxy: flag overrides config addr; proxy starts when
+			// enabled is true (from config/env) OR when --irc-proxy-addr
+			// is supplied on the command line.
+			if ircProxyAddrFlag != "" {
+				cfg.IRCProxy.Addr = ircProxyAddrFlag
+				cfg.IRCProxy.Enabled = true
+			}
+
+			if cfg.IRCProxy.Enabled && cfg.IRCProxy.Addr != "" {
+				p := &ircproxy.Proxy{
+					Listen: cfg.IRCProxy.Listen,
+					Addr:   cfg.IRCProxy.Addr,
+					Log:    logger,
+				}
+
+				g.Go(func() error {
+					return p.ListenAndServe(ctx)
+				})
+			}
+
 			if err := g.Wait(); err != nil {
 				logger.Error("server exit", zap.Error(err))
 				os.Exit(1)
@@ -159,6 +180,12 @@ func main() {
 		"probe-addr",
 		"",
 		`if set (e.g. ":8080"), serve /livez and /readyz only; when metrics-addr is set to the same value, probes are on that server instead (overrides config/env PROBE_ADDR)`,
+	)
+	rootCmd.Flags().StringVar(
+		&ircProxyAddrFlag,
+		"irc-proxy-addr",
+		"",
+		`upstream Ergo IRC server address (e.g. "ergo:6667"); setting this enables the IRC proxy regardless of config/env IRC_PROXY_ENABLED`,
 	)
 
 	if err := rootCmd.Execute(); err != nil {

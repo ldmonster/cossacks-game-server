@@ -69,12 +69,12 @@ func (r *Routes) RegNewRoomImpl(
 
 	rawTitle := p["VE_TITLE"]
 	if !lobbyapp.ValidateTitle(rawTitle) {
-		return render.Show(r.render(req.Ver, "confirm_dgl.tmpl", map[string]string{
-			"header":  "Error",
-			"text":    "Illegal title!\nPress Edit button to check title",
-			"ok_text": "Edit",
-			"height":  "180",
-			"command": "GW|open&new_room_dgl.dcml&ASTATE=<%ASTATE>",
+		return render.Show(r.render(req.Ver, "confirm_dgl.tmpl", &render.View{
+			Header:  "Error",
+			Text:    "Illegal title!\nPress Edit button to check title",
+			OkText:  "Edit",
+			Height:  180,
+			Command: "GW|open&new_room_dgl.dcml&ASTATE=<%ASTATE>",
 		})), ErrIllegalRoomTitle
 	}
 
@@ -142,13 +142,13 @@ func (r *Routes) RegNewRoomImpl(
 		)
 	}
 
-	return render.Show(r.render(req.Ver, "reg_new_room.tmpl", map[string]string{
-		"player_id": fmt.Sprintf("%d", playerID),
-		"hole_port": strconv.Itoa(r.deps.Server.HolePort),
-		"hole_host": hostName,
-		"hole_int":  strconv.Itoa(r.deps.Game.HoleInterval),
-		"id":        gameID,
-		"name":      title,
-		"max_pl":    fmt.Sprintf("%d", maxPlayers),
+	return render.Show(r.render(req.Ver, "reg_new_room.tmpl", &render.View{
+		PlayerID: fmt.Sprintf("%d", playerID),
+		HolePort: r.deps.Server.HolePort,
+		HoleHost: hostName,
+		HoleInt:  r.deps.Game.HoleInterval,
+		ID:       gameID,
+		Name:     title,
+		MaxPl:    maxPlayers,
 	})), nil
 }

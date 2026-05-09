@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/ldmonster/cossacks-game-server/internal/port"
+	"github.com/ldmonster/cossacks-game-server/internal/render"
 )
 
 // Cache holds the most recently parsed LCN ranking and GG Cup payloads,
@@ -148,22 +149,52 @@ func (c *Cache) LoadGGCup(rawPath string) map[string]any {
 	return payload
 }
 
-// MergeGGCupIntoStartupVars flattens the gg_cup hash into the string-keyed
-// template var map used by startup.tmpl.
-func MergeGGCupIntoStartupVars(gg map[string]any, vars map[string]string) {
+// BuildGGCupView projects the gg_cup hash into a typed view used by
+// startup.tmpl and gg_cup_thanks_dgl.tmpl. Returns nil when gg is nil
+// so templates can detect absence with `{{if .GGCup}}`.
+func BuildGGCupView(gg map[string]any) *render.GGCupView {
 	if gg == nil {
-		return
+		return nil
 	}
 
-	vars["gg_cup"] = "1"
+	v := &render.GGCupView{}
 
-	for _, k := range []string{"id", "wo_info", "started", "players_count", "prize_fund"} {
-		v, ok := gg[k]
-		if !ok {
-			continue
-		}
+	if s, ok := gg["id"]; ok {
+		v.ID = anyToStringVar(s)
+	}
 
-		vars["gg_cup."+k] = anyToStringVar(v)
+	v.WoInfo = boolFromAny(gg["wo_info"])
+	v.Started = boolFromAny(gg["started"])
+
+	if s, ok := gg["players_count"]; ok {
+		v.PlayersCount = anyToStringVar(s)
+	}
+
+	if s, ok := gg["prize_fund"]; ok {
+		v.PrizeFund = anyToStringVar(s)
+	}
+
+	v.PlayersCountLen = len(v.PlayersCount)
+	v.PrizeFundLen = len(v.PrizeFund)
+
+	return v
+}
+
+func boolFromAny(v any) bool {
+	switch t := v.(type) {
+	case bool:
+		return t
+	case string:
+		return t != "" && t != "0" && t != "false"
+	case float64:
+		return t != 0
+	case int:
+		return t != 0
+	case nil:
+		return false
+	default:
+		s := strings.TrimSpace(fmt.Sprint(v))
+		return s != "" && s != "0" && s != "false"
 	}
 }
 

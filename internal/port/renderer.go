@@ -16,10 +16,10 @@ package port
 
 // TemplateRenderer is the contract for resolving and rendering an LW show
 // template by name. Concrete implementations encapsulate template root
-// search paths and the TT-style fragment engine.
+// search paths and the Go text/template engine.
 type TemplateRenderer interface {
 	// Render loads the template named name (with .tmpl extension implied),
-	// applies vars via the TT-style fragment engine, and returns the body
+	// executes it against data via text/template, and returns the body
 	// suitable for an LW_show command. ver selects the cs/ vs ac/ variant.
-	Render(ver uint8, name string, vars map[string]string) string
+	Render(ver uint8, name string, data any) string
 }

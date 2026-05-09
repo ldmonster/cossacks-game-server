@@ -102,8 +102,8 @@ func (r *Routes) JoinGameImpl(
 	}
 
 	if room.Password != "" && p["VE_PASSWD"] != room.Password {
-		return render.Show(r.render(room.Ver, "confirm_password_dgl.tmpl", map[string]string{
-			"id": fmt.Sprintf("%d", room.ID),
+		return render.Show(r.render(room.Ver, "confirm_password_dgl.tmpl", &render.View{
+			ID: fmt.Sprintf("%d", room.ID),
 		})), fmt.Errorf("%w: id=%d", ErrBadRoomPassword, room.ID)
 	}
 
@@ -142,11 +142,11 @@ func (r *Routes) JoinGameImpl(
 		)
 	}
 
-	return render.Show(r.render(room.Ver, "join_room.tmpl", map[string]string{
-		"id":     fmt.Sprintf("%d", room.ID),
-		"max_pl": fmt.Sprintf("%d", room.MaxPlayers),
-		"name":   room.Title,
-		"ip":     ip,
-		"port":   fmt.Sprintf("%d", port),
+	return render.Show(r.render(room.Ver, "join_room.tmpl", &render.View{
+		ID:    fmt.Sprintf("%d", room.ID),
+		MaxPl: room.MaxPlayers,
+		Name:  room.Title,
+		IP:    ip,
+		Port:  port,
 	})), nil
 }

@@ -8,7 +8,6 @@
 #ebox[%E](x:180,y:24,w:100%-380,h:30)
 #pan[%MPN](%L[x:0,y:0,w:100%,h:100%],8)
 #ctxt[%TIT](%E[x:0,y:12,w:100%,h:10],{},"Game info")
-
 #rtxt(%E[x:320,y:12,w:50,h:10],{},#7)
 
 #font(WF,YF,WF)
@@ -19,20 +18,30 @@
 #font(WF,YF,WF)
 #txt[%L_HOST](%L[x:20,y:%T_NAME+6,w:100,h:24],{},"Host")
 #font(YF,WF,WF)
-#txt[%T_HOST](%L[x:100,y:%T_NAME+6,w:100%-120,h:24],{},)
+#txt[%T_HOST](%L[x:100,y:%T_NAME+6,w:100%-120,h:24],{},hostnick)
 
 //#font(WF,YF,WF)
 //#txt[%L_PING](%L[x:20,y:%T_HOST+6,w:100,h:24],{},"Ping")
 //#font(YF,WF,WF)
-//#ping[%T_PING](%L[x:100,y:%T_HOST+6,w:100%-120,h:24],)
+//#ping[%T_PING](%L[x:100,y:%T_HOST+6,w:100%-120,h:24],16909060)
 
 #font(WF,YF,WF)
 #txt[%L_PLAYERS](%L[x:20,y:%T_HOST+6,w:100,h:24],{},"Players")
 #font(YF,BF,BF)
-#txt[%T_PLAYERS](%L[x:100,y:%T_HOST+6,w:100%-120,h:24],{},
-   PLAYERS+6,w:100,h:24],{},"Level")
+#txt[%T_PLAYERS](%L[x:100,y:%T_HOST+6,w:100%-120,h:24],{},3/8, p1, p2)
+
+#font(WF,YF,WF)
+#txt[%L_LEVEL](%L[x:20,y:%T_PLAYERS+6,w:100,h:24],{},"Level")
 #font(YF,WF,WF)
-#txt[%T_LEVEL](%L[x:100,y:%T_LW_file&Internet/Cash/cancel.cml},"Cancel")
+#txt[%T_LEVEL](%L[x:100,y:%T_PLAYERS+6,w:100%-120,h:24],{},Normal)
+
+#font(WF,YF,WF)
+#txt[%L_CTIME](%L[x:20,y:%T_LEVEL+6,w:100,h:24],{},"Created at")
+#font(YF,WF,WF)
+#txt[%T_CTIME](%L[x:100,y:%T_LEVEL+6,w:100%-120,h:24],{},2023-11-14 22:13:20 UTC (10 min ago))
+
+#font(YF,WF,YF)
+
 #sbtn[%B_RGST](%L[x:43,y:100%+5,w:100,h:24],{GW|open&join_game.dcml&ASTATE=<%ASTATE>^VE_RID=7},"Join")
 #sbtn[%B_RGST](%L[x:230,y:100%+5,w:100,h:24],{LW_file&Internet/Cash/cancel.cml},"Cancel")
 <NGDLG>

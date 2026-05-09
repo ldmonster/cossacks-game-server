@@ -32,22 +32,23 @@ import (
 func (r *Routes) Startup(
 	_ context.Context, conn *tconn.Connection, req *gsc.Stream, _ map[string]string,
 ) ([]gsc.Command, error) {
-	vars := map[string]string{
-		"window_size":   WindowSize(conn),
-		"chat_server":   r.deps.Game.ChatServer,
-		"table_timeout": strconv.Itoa(r.deps.Game.TableTimeout),
-		"ver":           strconv.Itoa(int(req.Ver)),
+	view := &render.View{
+		WindowSize:   WindowSize(conn),
+		ChatServer:   r.deps.Game.ChatServer,
+		ServerTitle:  r.deps.Game.ServerTitle,
+		TableTimeout: r.deps.Game.TableTimeout,
+		Ver:          strconv.Itoa(int(req.Ver)),
 		// cs/startup.tmpl defines this via TT SET; provide explicit
 		// value so the generated show body keeps valid y/h coordinates
 		// for the bottom bar.
-		"bottom_height": "32",
+		BottomHeight: 32,
 	}
 
 	if r.deps.Ranking != nil {
-		rankingapp.MergeGGCupIntoStartupVars(r.deps.Ranking.LoadGGCup(), vars)
+		view.GGCup = rankingapp.BuildGGCupView(r.deps.Ranking.LoadGGCup())
 	}
 
-	body := r.render(req.Ver, "startup.tmpl", vars)
+	body := r.render(req.Ver, "startup.tmpl", view)
 
 	if r.deps.Log != nil {
 		btnLines := make([]string, 0, 8)

@@ -39,10 +39,10 @@ func (s *Service) Renderer() port.TemplateRenderer {
 
 // Render delegates to the wrapped template renderer. Returns "" when
 // no renderer has been wired (nil-safe).
-func (s *Service) Render(ver uint8, name string, vars map[string]string) string {
+func (s *Service) Render(ver uint8, name string, data any) string {
 	if s == nil || s.tpl == nil {
 		return ""
 	}
 
-	return s.tpl.Render(ver, name, vars)
+	return s.tpl.Render(ver, name, data)
 }

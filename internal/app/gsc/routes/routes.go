@@ -79,18 +79,18 @@ type Handler func(
 // render is a thin wrapper that mirrors Controller.render. It uses the
 // package defaults when the Routes value was constructed without a
 // renderer (only relevant in struct-literal tests).
-func (r *Routes) render(ver uint8, name string, vars map[string]string) string {
+func (r *Routes) render(ver uint8, name string, data any) string {
 	if r != nil && r.deps.Renderer != nil {
-		return r.deps.Renderer.Render(ver, name, vars)
+		return r.deps.Renderer.Render(ver, name, data)
 	}
 
-	return render.LoadShowBodyFromRoots(render.DefaultTemplateRoots, ver, name, vars)
+	return render.LoadShowBodyFromRoots(render.DefaultTemplateRoots, ver, name, data)
 }
 
 // renderAlert mirrors Controller.renderAlert for the migrated routes.
 func (r *Routes) renderAlert(ver uint8, header, text string) []gsc.Command {
-	return render.Show(r.render(ver, "alert_dgl.tmpl", map[string]string{
-		"header": header,
-		"text":   text,
+	return render.Show(r.render(ver, "alert_dgl.tmpl", &render.View{
+		Header: header,
+		Text:   text,
 	}))
 }

@@ -1,14 +1,14 @@
 #font(BRF,BBF,BBF)
 #ebox[%EBG](x:0,y:0,w:1024,h:768)
 #font(B1F40,B1F40,B1F40)
-#ctxt[%TI](%EBG[x:0,y:18,w:100%,h:30],{},{Example Game Server})
+#ctxt[%TI](%EBG[x:0,y:18,w:100%,h:30],{},{{printf "{%s}" .ServerTitle}})
 
 #ebox[%LBX](x:430,y:180,w:510,h:220)
 #pan[%MPN](%LBX[x:0,y:0,w:100%,h:100%],0)
 
 
 #font(BF,BF,BF)
-#ctxt[%TIT](%LBX[x:0,y:-1+190,w:100%,h:30],{},"my-server.example")
+#ctxt[%TIT](%LBX[x:0,y:-1+190,w:100%,h:30],{},"{{.ServerName}}")
 
 #font(WF,WF,WF)
 #txt(%LBX[x:10,y:167,w:100%,h:24],{},"Your nickname:")

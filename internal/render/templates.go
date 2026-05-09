@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Template lookup + TT-style fragment renderer. Migrated here from
+// Template lookup + Go-template fragment renderer. Migrated here from
 // the handler package.
 // The handler package now keeps thin aliases for older call
 // sites so the move is non-breaking.
@@ -20,13 +20,9 @@
 package render
 
 import (
-	"math"
 	"os"
 	"path/filepath"
-	"regexp"
-	"strconv"
 	"strings"
-	"unicode/utf8"
 )
 
 // DefaultTemplateRoots is the built-in lookup search path used when no
@@ -64,8 +60,8 @@ func (r *TemplateRenderer) Roots() []string {
 }
 
 // Render satisfies port.TemplateRenderer.
-func (r *TemplateRenderer) Render(ver uint8, name string, vars map[string]string) string {
-	return LoadShowBodyFromRoots(r.Roots(), ver, name, vars)
+func (r *TemplateRenderer) Render(ver uint8, name string, data any) string {
+	return LoadShowBodyFromRoots(r.Roots(), ver, name, data)
 }
 
 // BuildTemplateRoots prepends customRoot (if non-empty) to defaults
@@ -130,7 +126,7 @@ func LoadShowBodyFromRoots(
 	roots []string,
 	ver uint8,
 	templateName string,
-	vars map[string]string,
+	data any,
 ) string {
 	name := NormalizeShowTemplateName(templateName)
 	if name == "" {
@@ -150,511 +146,60 @@ func LoadShowBodyFromRoots(
 			continue
 		}
 
-		return RenderShowTemplate(string(b), vars)
+		extras := loadSubtemplates(path)
+
+		return RenderShowTemplate(string(b), data, extras...)
 	}
 
 	return FallbackShowBody()
 }
 
-// RenderShowTemplate applies the TT-style fragment renderer used by
-// on-disk .tmpl bodies.
-func RenderShowTemplate(src string, vars map[string]string) string {
-	if vars == nil {
-		vars = map[string]string{}
+// loadSubtemplates reads sibling `.tmpl` files in a directory named
+// after the main template (without extension) so that
+// `{{template "name" .}}` references in the main file resolve.
+//
+// E.g. for `templates/cs/started_room_info.tmpl`, this returns the
+// contents of every `.tmpl` under `templates/cs/started_room_info/`.
+func loadSubtemplates(mainPath string) []string {
+	ext := filepath.Ext(mainPath)
+	dir := strings.TrimSuffix(mainPath, ext)
+
+	st, err := os.Stat(dir)
+	if err != nil || !st.IsDir() {
+		return nil
 	}
 
-	src = renderInlineIfBlocks(src, vars)
-	lines := strings.Split(src, "\n")
-	out := make([]string, 0, len(lines))
-	enabled := []bool{true}
-	ifConds := []bool{}
+	var out []string
 
-	for _, line := range lines {
-		trim := strings.TrimSpace(line)
-		if strings.HasPrefix(trim, "<?") && strings.HasSuffix(trim, "?>") &&
-			!strings.Contains(trim, "<%") {
-			body := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(trim, "<?"), "?>"))
-
-			body = normalizeTT(body)
-			switch {
-			case strings.HasPrefix(body, "IF "):
-				cond := evalCondition(strings.TrimSpace(strings.TrimPrefix(body, "IF ")), vars)
-				parent := enabled[len(enabled)-1]
-				enabled = append(enabled, parent && cond)
-				ifConds = append(ifConds, cond)
-			case body == "ELSE":
-				if len(ifConds) > 0 && len(enabled) > 1 {
-					parent := enabled[len(enabled)-2]
-					enabled[len(enabled)-1] = parent && !ifConds[len(ifConds)-1]
-				}
-			case strings.HasPrefix(body, "END"):
-				if len(enabled) > 1 {
-					enabled = enabled[:len(enabled)-1]
-				}
-
-				if len(ifConds) > 0 {
-					ifConds = ifConds[:len(ifConds)-1]
-				}
-			}
-
-			continue
+	_ = filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil
 		}
 
-		if !enabled[len(enabled)-1] {
-			continue
+		if !strings.HasSuffix(strings.ToLower(p), ".tmpl") {
+			return nil
 		}
 
-		out = append(out, line)
-	}
-
-	res := strings.Join(out, "\n")
-	expr := regexp.MustCompile(`(?s)<\?\s*(.*?)\s*\?>`)
-	res = expr.ReplaceAllStringFunc(res, func(token string) string {
-		m := expr.FindStringSubmatch(token)
-		if len(m) < 2 {
-			return ""
+		b, rerr := os.ReadFile(p)
+		if rerr != nil {
+			return nil
 		}
 
-		return evalExpr(strings.TrimSpace(m[1]), vars)
+		out = append(out, string(b))
+
+		return nil
 	})
 
-	return strings.TrimSpace(res)
+	return out
 }
 
-func evalCondition(expr string, vars map[string]string) bool {
-	expr = strings.TrimSpace(expr)
-	expr = normalizeTT(expr)
-
-	if strings.Contains(expr, "||") {
-		parts := strings.Split(expr, "||")
-		for _, p := range parts {
-			if evalCondition(p, vars) {
-				return true
-			}
-		}
-
-		return false
-	}
-
-	if strings.Contains(expr, "&&") {
-		parts := strings.Split(expr, "&&")
-		for _, p := range parts {
-			if !evalCondition(p, vars) {
-				return false
-			}
-		}
-
-		return true
-	}
-
-	if strings.HasPrefix(expr, "!") {
-		return !evalCondition(strings.TrimSpace(expr[1:]), vars)
-	}
-
-	if strings.Contains(expr, "!=") {
-		parts := strings.SplitN(expr, "!=", 2)
-		if len(parts) == 2 {
-			return strings.TrimSpace(
-				evalExpr(parts[0], vars),
-			) != strings.TrimSpace(
-				evalExpr(parts[1], vars),
-			)
-		}
-	}
-
-	if strings.Contains(expr, ">=") {
-		parts := strings.SplitN(expr, ">=", 2)
-
-		return compareNum(
-			evalExpr(parts[0], vars),
-			evalExpr(parts[1], vars),
-			func(a, b float64) bool { return a >= b },
-		)
-	}
-
-	if strings.Contains(expr, "<=") {
-		parts := strings.SplitN(expr, "<=", 2)
-
-		return compareNum(
-			evalExpr(parts[0], vars),
-			evalExpr(parts[1], vars),
-			func(a, b float64) bool { return a <= b },
-		)
-	}
-
-	if strings.Contains(expr, ">") {
-		parts := strings.SplitN(expr, ">", 2)
-
-		return compareNum(
-			evalExpr(parts[0], vars),
-			evalExpr(parts[1], vars),
-			func(a, b float64) bool { return a > b },
-		)
-	}
-
-	if strings.Contains(expr, "<") {
-		parts := strings.SplitN(expr, "<", 2)
-
-		return compareNum(
-			evalExpr(parts[0], vars),
-			evalExpr(parts[1], vars),
-			func(a, b float64) bool { return a < b },
-		)
-	}
-
-	if strings.Contains(expr, "==") {
-		parts := strings.SplitN(expr, "==", 2)
-
-		return strings.TrimSpace(
-			evalExpr(parts[0], vars),
-		) == strings.TrimSpace(
-			evalExpr(parts[1], vars),
-		)
-	}
-
-	v := strings.TrimSpace(evalExpr(expr, vars))
-
-	return v != "" && v != "0" && strings.ToLower(v) != "false"
-}
-
-func evalExpr(expr string, vars map[string]string) string {
-	expr = normalizeTT(expr)
-
-	expr = strings.TrimSpace(expr)
-	if expr == "" {
-		return ""
-	}
-
-	if strings.Contains(expr, "|") {
-		parts := strings.Split(expr, "|")
-		expr = strings.TrimSpace(parts[0])
-	}
-
-	if s, ok := tryEvalAddMul(expr, vars); ok {
-		return s
-	}
-
-	return evalExprLeaf(expr, vars)
-}
-
-func evalExprLeaf(expr string, vars map[string]string) string {
-	expr = strings.TrimSpace(expr)
-	if q := unquote(expr); q != nil {
-		return *q
-	}
-
-	if i := strings.Index(expr, "?"); i > 0 && strings.Contains(expr[i+1:], ":") {
-		cond := strings.TrimSpace(expr[:i])
-		rest := strings.TrimSpace(expr[i+1:])
-
-		j := strings.Index(rest, ":")
-		if j > 0 {
-			left := strings.TrimSpace(rest[:j])
-			right := strings.TrimSpace(rest[j+1:])
-
-			if evalCondition(cond, vars) {
-				return evalExpr(left, vars)
-			}
-
-			return evalExpr(right, vars)
-		}
-	}
-
-	if strings.Contains(expr, "==") {
-		if evalCondition(expr, vars) {
-			return "1"
-		}
-
-		return ""
-	}
-
-	if strings.HasSuffix(expr, ".length") {
-		inner := strings.TrimSpace(strings.TrimSuffix(expr, ".length"))
-		if inner != "" {
-			s := evalExpr(inner, vars)
-			if s == "" {
-				return "0"
-			}
-
-			return strconv.Itoa(utf8.RuneCountInString(s))
-		}
-	}
-
-	if strings.HasPrefix(expr, "POSIX.floor(") && strings.HasSuffix(expr, ")") {
-		inner := strings.TrimSuffix(strings.TrimPrefix(expr, "POSIX.floor("), ")")
-
-		v := evalExpr(inner, vars)
-		if f, err := strconv.ParseFloat(v, 64); err == nil {
-			return strconv.Itoa(int(f))
-		}
-
-		return "0"
-	}
-
-	if expr == "h.req.ver" {
-		return vars["ver"]
-	}
-
-	if strings.HasPrefix(expr, "server.config.") {
-		return lookupVar(strings.TrimPrefix(expr, "server.config."), vars)
-	}
-
-	if strings.HasPrefix(expr, "P.") {
-		return lookupVar(strings.TrimPrefix(expr, "P."), vars)
-	}
-
-	if _, err := strconv.ParseFloat(strings.TrimSpace(expr), 64); err == nil {
-		return strings.TrimSpace(expr)
-	}
-
-	if strings.Contains(expr, " _ ") {
-		parts := strings.Split(expr, " _ ")
-
-		var b strings.Builder
-		for _, p := range parts {
-			b.WriteString(evalExpr(p, vars))
-		}
-
-		return b.String()
-	}
-
-	return lookupVar(expr, vars)
-}
-
-func hasTopLevelOp(s string, op rune) bool {
-	depth := 0
-
-	for _, r := range s {
-		switch r {
-		case '(':
-			depth++
-		case ')':
-			if depth > 0 {
-				depth--
-			}
-		}
-
-		if depth == 0 && r == op {
-			return true
-		}
-	}
-
-	return false
-}
-
-func splitTopLevelOp(s string, op rune) []string {
-	depth := 0
-
-	var parts []string
-
-	start := 0
-
-	for i, r := range s {
-		switch r {
-		case '(':
-			depth++
-		case ')':
-			if depth > 0 {
-				depth--
-			}
-		}
-
-		if depth == 0 && r == op {
-			if i > start {
-				parts = append(parts, strings.TrimSpace(s[start:i]))
-			}
-
-			start = i + utf8.RuneLen(r)
-		}
-	}
-
-	if start <= len(s) {
-		if tail := strings.TrimSpace(s[start:]); tail != "" {
-			parts = append(parts, tail)
-		} else if len(parts) == 0 {
-			parts = append(parts, "")
-		}
-	}
-
-	return parts
-}
-
-func tryEvalAddMul(expr string, vars map[string]string) (string, bool) {
-	if !hasTopLevelOp(expr, '+') && !hasTopLevelOp(expr, '*') {
-		return "", false
-	}
-
-	addends := splitTopLevelOp(expr, '+')
-	if len(addends) == 0 {
-		return "", false
-	}
-
-	var sum float64
-
-	for _, addend := range addends {
-		if addend == "" {
-			continue
-		}
-
-		if !hasTopLevelOp(addend, '*') {
-			sum += evalArithAtom(addend, vars)
-			continue
-		}
-
-		prod := 1.0
-		for _, f := range splitTopLevelOp(addend, '*') {
-			prod *= evalArithAtom(f, vars)
-		}
-
-		sum += prod
-	}
-
-	return strconv.FormatInt(int64(math.Trunc(sum)), 10), true
-}
-
-func evalArithAtom(expr string, vars map[string]string) float64 {
-	expr = strings.TrimSpace(expr)
-	if expr == "" {
-		return 0
-	}
-
-	if f, err := strconv.ParseFloat(expr, 64); err == nil {
-		return f
-	}
-
-	s := evalExprLeaf(expr, vars)
-	if s == "" {
-		return 0
-	}
-
-	if f, err := strconv.ParseFloat(s, 64); err == nil {
-		return f
-	}
-
-	if f, err := strconv.ParseFloat(strings.TrimSpace(s), 64); err == nil {
-		return f
-	}
-
-	return 0
-}
-
-func normalizeTT(s string) string {
-	s = strings.TrimSpace(s)
-	s = strings.TrimPrefix(s, "~")
-	s = strings.TrimSuffix(s, "~")
-
-	return strings.TrimSpace(s)
-}
-
-func lookupVar(name string, vars map[string]string) string {
-	name = strings.TrimSpace(name)
-	switch name {
-	case "id":
-		return vars["id"]
-	case "nick":
-		return vars["nick"]
-	case "NICK":
-		return vars["nick"]
-	case "error_text":
-		return vars["error_text"]
-	case "chat_server":
-		return vars["chat_server"]
-	case "logged_in":
-		return vars["logged_in"]
-	case "type":
-		return vars["type"]
-	case "window_size":
-		return vars["window_size"]
-	case "table_timeout":
-		return vars["table_timeout"]
-	case "ver":
-		return vars["ver"]
-	case "header":
-		return vars["header"]
-	case "text":
-		return vars["text"]
-	case "ok_text":
-		return vars["ok_text"]
-	case "height":
-		return vars["height"]
-	case "command":
-		return vars["command"]
-	case "ip":
-		return vars["ip"]
-	case "port":
-		return vars["port"]
-	case "max_pl":
-		return vars["max_pl"]
-	case "name":
-		return vars["name"]
-	case "active_players":
-		return vars["active_players"]
-	case "exited_players":
-		return vars["exited_players"]
-	case "has_exited_players":
-		return vars["has_exited_players"]
-	case "room_players_start":
-		return vars["room_players_start"]
-	default:
-		return vars[name]
-	}
-}
-
-func unquote(s string) *string {
-	if len(s) >= 2 &&
-		((s[0] == '\'' && s[len(s)-1] == '\'') || (s[0] == '"' && s[len(s)-1] == '"')) {
-		v := s[1 : len(s)-1]
-		return &v
-	}
-
-	return nil
-}
-
-func compareNum(aRaw, bRaw string, cmp func(a, b float64) bool) bool {
-	a, errA := strconv.ParseFloat(strings.TrimSpace(aRaw), 64)
-
-	b, errB := strconv.ParseFloat(strings.TrimSpace(bRaw), 64)
-	if errA != nil || errB != nil {
-		return false
-	}
-
-	return cmp(a, b)
-}
-
-func renderInlineIfBlocks(src string, vars map[string]string) string {
-	reElse := regexp.MustCompile(
-		`(?s)<\?\s*IF\s+(.+?)\s*\?>(.*?)<\?\s*ELSE\s*\?>(.*?)<\?\s*END\s*\?>`,
-	)
-	for reElse.MatchString(src) {
-		src = reElse.ReplaceAllStringFunc(src, func(m string) string {
-			sub := reElse.FindStringSubmatch(m)
-			if len(sub) != 4 {
-				return m
-			}
-
-			if evalCondition(sub[1], vars) {
-				return sub[2]
-			}
-
-			return sub[3]
-		})
-	}
-
-	reNoElse := regexp.MustCompile(`(?s)<\?\s*IF\s+(.+?)\s*\?>(.*?)<\?\s*END\s*\?>`)
-	for reNoElse.MatchString(src) {
-		src = reNoElse.ReplaceAllStringFunc(src, func(m string) string {
-			sub := reNoElse.FindStringSubmatch(m)
-			if len(sub) != 3 {
-				return m
-			}
-
-			if evalCondition(sub[1], vars) {
-				return sub[2]
-			}
-
-			return ""
-		})
-	}
-
-	return src
+// RenderShowTemplate executes the Go text/template engine over `src`.
+// Optional `extras` are additional template sources (e.g. sibling
+// files containing `{{define}}` blocks) parsed alongside the main
+// src so cross-file `{{template "name" .}}` references resolve.
+//
+// Any `<%...%>` and `<? P.* ?>` tokens are passed through verbatim;
+// they are interpreted by the game client.
+func RenderShowTemplate(src string, data any, extras ...string) string {
+	return strings.TrimSpace(renderGoTemplate(src, data, extras...))
 }

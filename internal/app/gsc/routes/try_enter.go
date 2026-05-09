@@ -65,7 +65,7 @@ func (r *Routes) TryEnterImpl(
 		return render.Show(r.render(
 			req.Ver,
 			"error_enter.tmpl",
-			map[string]string{"error_text": dec.Message},
+			&render.View{Text: dec.Message},
 		)), dec.Err
 
 	case identity.EnterSuccess:
@@ -146,12 +146,13 @@ func (r *Routes) successEnter(
 		r.deps.Sessions.Register(id, conn)
 	}
 
-	return render.Show(r.render(req.Ver, "ok_enter.tmpl", map[string]string{
-		"nick":        nick,
-		"id":          fmt.Sprintf("%d", id),
-		"chat_server": r.deps.Game.ChatServer,
-		"window_size": WindowSize(conn),
-		"ver":         strconv.Itoa(int(req.Ver)),
+	return render.Show(r.render(req.Ver, "ok_enter.tmpl", &render.View{
+		Nick:       nick,
+		Nickname:   nick,
+		ID:         fmt.Sprintf("%d", id),
+		ChatServer: r.deps.Game.ChatServer,
+		WindowSize: WindowSize(conn),
+		Ver:        strconv.Itoa(int(req.Ver)),
 	}))
 }
 
